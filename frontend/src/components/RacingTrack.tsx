@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Car } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface Student {
@@ -20,7 +20,7 @@ const RacingTrack = ({ students, progress, totalQuestions }: RacingTrackProps) =
                     <div key={student.id} className="relative">
                         <div className="flex items-center gap-4 mb-2">
                             <span className="font-bold w-24 truncate">{student.nickname}</span>
-                            <div className="flex-1 relative h-12 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                            <div className="flex-1 relative h-12 bg-slate-100 rounded-lg border border-slate-200">
                                 {/* Track lines */}
                                 <div className="absolute inset-0 flex justify-between px-2">
                                     {[...Array(totalQuestions)].map((_, i) => (
@@ -29,19 +29,29 @@ const RacingTrack = ({ students, progress, totalQuestions }: RacingTrackProps) =
                                 </div>
 
                                 {/* Finish line */}
-                                <div className="absolute right-0 top-0 bottom-0 w-8 bg-checkerboard opacity-50"></div>
+                                <div className="absolute right-0 top-0 bottom-0 w-8 bg-checkerboard opacity-50 rounded-r-lg"></div>
 
                                 {/* Avatar */}
-                                <div
-                                    className="absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-in-out"
-                                    style={{ left: `${Math.min(((progress[student.id] || 0) / totalQuestions) * 100, 95)}%` }}
-                                >
-                                    <Avatar className="w-10 h-10 border-2 border-white shadow-lg">
-                                        <AvatarFallback className="bg-primary text-primary-foreground">
-                                            {student.nickname[0]}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </div>
+                                {/* Avatar */}
+                                {(() => {
+                                    const percentage = Math.min(((progress[student.id] || 0) / totalQuestions) * 100, 100);
+                                    return (
+                                        <div
+                                            className="absolute top-1/2 transition-all duration-500 ease-in-out"
+                                            style={{
+                                                left: `${percentage}%`,
+                                                transform: `translate(-${percentage}%, -50%)`
+                                            }}
+                                        >
+                                            <div className="relative">
+                                                <Car className="w-8 h-8 text-primary fill-primary stroke-white stroke-2 drop-shadow-lg" />
+                                                <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold bg-white px-1.5 py-0.5 rounded shadow-sm border border-slate-200 whitespace-nowrap">
+                                                    {student.nickname}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>
