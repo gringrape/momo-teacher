@@ -222,19 +222,25 @@ const TeacherDiscussionPage = () => {
                 </div>
             ) : (
                 <div className="flex flex-col gap-6">
-                    <Card className="border-2 border-primary/20 shadow-lg">
-                        <CardContent className="p-8 text-center space-y-4">
-                            <div className="inline-block bg-primary/10 text-primary px-4 py-1 rounded-full font-bold mb-2">
+                    <Card className="border-[12px] border-[#8B4513] bg-[#2F4F4F] shadow-2xl rounded-sm relative overflow-hidden">
+                        {/* Chalk dust effect */}
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-chalk.png')] opacity-30 pointer-events-none mix-blend-overlay"></div>
+
+                        <CardContent className="p-12 text-center space-y-8 relative z-10">
+                            <div className="inline-block bg-white/10 text-white border border-white/20 px-6 py-2 rounded-full font-bold mb-4 backdrop-blur-sm">
                                 질문 {currentQuestionIndex + 1}
                             </div>
-                            <h2 className="text-3xl font-bold leading-tight">
+                            <h2 className="text-4xl font-bold leading-tight text-white font-serif tracking-wide drop-shadow-md">
                                 {currentQuestion?.question}
                             </h2>
-                            <p className="text-xl text-muted-foreground font-medium">
+                            <p className="text-2xl text-slate-200 font-medium font-handwriting tracking-wide">
                                 {currentQuestion?.reason}
                             </p>
-                            <div className="pt-4">
-                                <Button onClick={handleNextQuestion} variant="outline" size="lg">
+                            <div className="pt-8">
+                                <Button
+                                    onClick={handleNextQuestion}
+                                    className="bg-white text-[#2F4F4F] hover:bg-slate-100 hover:scale-105 transition-all font-bold text-lg h-14 px-8 rounded-full shadow-lg border-none"
+                                >
                                     {currentQuestionIndex < 3 ? '다음 질문으로 넘어가기' : '개선건의서 만들기'}
                                 </Button>
                             </div>
