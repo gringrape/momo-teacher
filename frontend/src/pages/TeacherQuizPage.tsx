@@ -108,7 +108,7 @@ const TeacherQuizPage = () => {
                             <CardTitle>실시간 레이싱</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <RacingTrack students={students} progress={progress} totalQuestions={6} />
+                            <RacingTrack students={students} progress={progress} totalQuestions={10} />
                         </CardContent>
                     </Card>
                 )}

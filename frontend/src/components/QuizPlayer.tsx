@@ -13,6 +13,8 @@ interface Question {
     options: string[];
 }
 
+const INCORRECT_PENALTY_MS = 5000; // 5초 (여기서 시간을 변경하세요)
+
 const QuizPlayer = ({ socket }: QuizPlayerProps) => {
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [isFinished, setIsFinished] = useState(false);
@@ -47,7 +49,7 @@ const QuizPlayer = ({ socket }: QuizPlayerProps) => {
             setFeedback('incorrect');
             setTimeout(() => {
                 setFeedback(null);
-            }, 1000);
+            }, INCORRECT_PENALTY_MS);
         });
 
         socket.on('finished', () => {
