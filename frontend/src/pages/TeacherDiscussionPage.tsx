@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import DiscussionReport from '@/components/DiscussionReport';
 
 interface Student {
     id: string;
@@ -40,6 +41,7 @@ const TeacherDiscussionPage = () => {
     const [isTeacherInputOpen, setIsTeacherInputOpen] = useState(false);
     const [teacherNickname, setTeacherNickname] = useState('선생님');
     const [teacherOpinion, setTeacherOpinion] = useState('');
+    const [showReport, setShowReport] = useState(false);
 
     // Drag and Drop State
     const containerRef = useRef<HTMLDivElement>(null);
@@ -47,7 +49,7 @@ const TeacherDiscussionPage = () => {
     const dragStartPos = useRef<{ x: number, y: number, itemX: number, itemY: number } | null>(null);
 
     useEffect(() => {
-        // Generate stable layouts for new responses
+        // ... (layout effect)
         setLayoutMap(prev => {
             const next = { ...prev };
             let changed = false;
@@ -71,7 +73,7 @@ const TeacherDiscussionPage = () => {
         const newSocket = io('/', {
             path: '/socket.io',
         });
-
+        // ... (socket effect)
         newSocket.on('connect', () => {
             console.log('Connected to socket server');
             setIsConnected(true);
@@ -103,6 +105,7 @@ const TeacherDiscussionPage = () => {
     }, []);
 
     // Drag Handlers
+    // ... (omitted for brevity, keep existing handlers)
     const handlePointerDown = (e: React.PointerEvent, key: string, currentLayout: any) => {
         e.preventDefault();
         e.stopPropagation();
@@ -161,8 +164,11 @@ const TeacherDiscussionPage = () => {
     };
 
     const handleNextQuestion = () => {
-        if (socket) {
+        if (currentQuestionIndex < 3 && socket) {
             socket.emit('nextDiscussionQuestion');
+        } else {
+            // Show Report
+            setShowReport(true);
         }
     };
 
@@ -176,6 +182,17 @@ const TeacherDiscussionPage = () => {
             setIsTeacherInputOpen(false);
         }
     };
+
+    if (showReport) {
+        return (
+            <DiscussionReport
+                questions={allQuestions.length > 0 ? allQuestions : (currentQuestion ? [currentQuestion] : [])}
+                responses={responses}
+                students={students}
+                onBack={() => setShowReport(false)}
+            />
+        );
+    }
 
     return (
         <div className="container mx-auto p-8 min-h-screen bg-slate-50">
