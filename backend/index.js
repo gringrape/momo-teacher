@@ -41,7 +41,7 @@ const QUIZ_DATA = [
 const DISCUSSION_QUESTIONS = [
     {
         question: "우리가 왜 이 활동을 했나요?",
-        reason: "조사배경."
+        reason: "우리 학교의 시설물들이 휠체어이용자에게 불편한지 확인해봤어요"
     },
     {
         question: "우리 학교 장애인용 화장실을 조사해보니 어떤 점이 고쳐져야 하나요?",
