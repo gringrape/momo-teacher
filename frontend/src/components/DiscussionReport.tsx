@@ -119,7 +119,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                             {responsesByQuestion[0] && responsesByQuestion[0].length > 0 ? (
                                 responsesByQuestion[0].map((resp, idx) => (
                                     <div key={idx}
-                                        className={`relative p-6 rounded-sm shadow-md font-medium text-slate-700 aspect-[1.8/1] min-h-[160px] flex flex-col justify-between transition-transform hover:scale-105 hover:z-10 ${['bg-[#FFF7B1]', 'bg-[#FFD1DA]', 'bg-[#D7F1FD]', 'bg-[#E2F0CB]'][idx % 4]
+                                        className={`relative p-6 rounded-sm shadow-md font-medium text-slate-700 aspect-[1.8/1] min-h-[160px] flex flex-col justify-between transition-transform hover:scale-105 hover:z-10 print:break-inside-avoid ${['bg-[#FFF7B1]', 'bg-[#FFD1DA]', 'bg-[#D7F1FD]', 'bg-[#E2F0CB]'][idx % 4]
                                             }`}
                                         style={{ transform: `rotate(${(idx * 13 % 10) - 5}deg)` }}
                                     >
@@ -180,7 +180,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                                             {responsesByQuestion[originalIdx] && responsesByQuestion[originalIdx].length > 0 ? (
                                                 responsesByQuestion[originalIdx].map((resp, rIdx) => (
                                                     <div key={rIdx}
-                                                        className={`relative p-6 rounded-sm shadow-md font-medium text-slate-700 aspect-[1.8/1] min-h-[160px] flex flex-col justify-between transition-transform hover:scale-105 hover:z-10 ${['bg-[#FFF7B1]', 'bg-[#FFD1DA]', 'bg-[#D7F1FD]', 'bg-[#E2F0CB]'][rIdx % 4]
+                                                        className={`relative p-6 rounded-sm shadow-md font-medium text-slate-700 aspect-[1.8/1] min-h-[160px] flex flex-col justify-between transition-transform hover:scale-105 hover:z-10 print:break-inside-avoid ${['bg-[#FFF7B1]', 'bg-[#FFD1DA]', 'bg-[#D7F1FD]', 'bg-[#E2F0CB]'][rIdx % 4]
                                                             }`}
                                                         style={{ transform: `rotate(${(rIdx * 17 % 10) - 5}deg)` }}
                                                     >
