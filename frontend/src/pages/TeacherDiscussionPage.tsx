@@ -3,6 +3,10 @@ import { io, Socket } from 'socket.io-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import QRCode from 'react-qr-code';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 interface Student {
     id: string;
@@ -31,6 +35,11 @@ const TeacherDiscussionPage = () => {
     const [responses, setResponses] = useState<DiscussionResponse[]>([]);
     const [allQuestions, setAllQuestions] = useState<DiscussionQuestion[]>([]);
     const [layoutMap, setLayoutMap] = useState<Record<string, { x: number; y: number; rotate: number; color: string }>>({});
+
+    // Teacher Input State
+    const [isTeacherInputOpen, setIsTeacherInputOpen] = useState(false);
+    const [teacherNickname, setTeacherNickname] = useState('선생님');
+    const [teacherOpinion, setTeacherOpinion] = useState('');
 
     // Drag and Drop State
     const containerRef = useRef<HTMLDivElement>(null);
@@ -157,6 +166,17 @@ const TeacherDiscussionPage = () => {
         }
     };
 
+    const handleTeacherSubmit = () => {
+        if (socket && teacherOpinion.trim()) {
+            socket.emit('submitDiscussion', {
+                text: teacherOpinion,
+                nickname: teacherNickname
+            });
+            setTeacherOpinion('');
+            setIsTeacherInputOpen(false);
+        }
+    };
+
     return (
         <div className="container mx-auto p-8 min-h-screen bg-slate-50">
             <div className="flex justify-between items-center mb-8">
@@ -246,6 +266,46 @@ const TeacherDiscussionPage = () => {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Teacher Input Dialog Trigger */}
+                    <div className="flex justify-end">
+                        <Dialog open={isTeacherInputOpen} onOpenChange={setIsTeacherInputOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="secondary" className="shadow-sm">
+                                    ✏️ 선생님 의견 작성하기
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>선생님 의견 추가</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nickname">작성자 이름</Label>
+                                        <Input
+                                            id="nickname"
+                                            value={teacherNickname}
+                                            onChange={(e) => setTeacherNickname(e.target.value)}
+                                            placeholder="이름을 입력하세요"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="opinion">의견 내용</Label>
+                                        <Textarea
+                                            id="opinion"
+                                            value={teacherOpinion}
+                                            onChange={(e) => setTeacherOpinion(e.target.value)}
+                                            placeholder="학생들에게 보여줄 의견을 작성하세요"
+                                            className="min-h-[100px]"
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit" onClick={handleTeacherSubmit}>등록하기</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
 
                     <div
                         ref={containerRef}
