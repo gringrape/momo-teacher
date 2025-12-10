@@ -3,7 +3,6 @@ import { io, Socket } from 'socket.io-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import VoiceInput from '@/components/VoiceInput';
 
 interface DiscussionQuestion {
     question: string;
@@ -17,6 +16,10 @@ const StudentDiscussionPage = () => {
     const [discussionStatus, setDiscussionStatus] = useState<'waiting' | 'discussing'>('waiting');
     const [currentQuestion, setCurrentQuestion] = useState<DiscussionQuestion | null>(null);
     const [myResponse, setMyResponse] = useState<string | null>(null);
+
+    // Voice Input State
+    const [isListening, setIsListening] = useState(false);
+    const [recognition, setRecognition] = useState<any>(null);
 
     useEffect(() => {
         const newSocket = io('/', {
@@ -40,6 +43,51 @@ const StudentDiscussionPage = () => {
             newSocket.disconnect();
         };
     }, []);
+
+    // Initialize Speech Recognition
+    useEffect(() => {
+        if (typeof window !== 'undefined' && (window.SpeechRecognition || (window as any).webkitSpeechRecognition)) {
+            const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+            const recognitionInstance = new SpeechRecognition();
+            recognitionInstance.continuous = true;
+            recognitionInstance.interimResults = true;
+            recognitionInstance.lang = 'ko-KR';
+
+            recognitionInstance.onresult = (event: any) => {
+                let currentTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    currentTranscript += event.results[i][0].transcript;
+                }
+                // Update input value directly
+                const inputEl = document.getElementById('opinion-input') as HTMLInputElement;
+                if (inputEl) {
+                    inputEl.value = currentTranscript;
+                }
+            };
+
+            recognitionInstance.onend = () => {
+                setIsListening(false);
+            };
+
+            setRecognition(recognitionInstance);
+        }
+    }, []);
+
+    const toggleMic = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent form submit
+        if (!recognition) {
+            alert("이 브라우저는 음성 인식을 지원하지 않습니다.");
+            return;
+        }
+
+        if (isListening) {
+            recognition.stop();
+            setIsListening(false);
+        } else {
+            recognition.start();
+            setIsListening(true);
+        }
+    };
 
     const handleJoin = () => {
         if (socket && nickname.trim()) {
@@ -120,14 +168,61 @@ const StudentDiscussionPage = () => {
                     </div>
                 ) : (
                     <>
-                        <p className="text-center text-lg font-medium text-slate-600">
-                            마이크 버튼을 누르고<br />여러분의 생각을 말해주세요.
+                        <p className="text-center text-lg font-medium text-slate-600 mb-8">
+                            마이크를 누르고 말하거나<br />텍스트로 입력해주세요.
                         </p>
-                        <VoiceInput onSubmit={handleSubmitOpinion} />
+
+                        <div className="w-full bg-white p-2 rounded-2xl shadow-lg border border-primary/20">
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const form = e.target as HTMLFormElement;
+                                    const input = form.elements.namedItem('opinion') as HTMLInputElement;
+                                    if (input.value.trim()) {
+                                        handleSubmitOpinion(input.value);
+                                        input.value = '';
+                                    }
+                                }}
+                                className="flex gap-2 items-center"
+                            >
+                                <Input
+                                    id="opinion-input"
+                                    name="opinion"
+                                    placeholder="답변을 입력하세요..."
+                                    className="flex-1 border-0 shadow-none focus-visible:ring-0 text-lg h-14 bg-transparent"
+                                    autoComplete="off"
+                                />
+
+                                <Button
+                                    type="button"
+                                    variant={isListening ? "destructive" : "secondary"}
+                                    size="icon"
+                                    className={`rounded-full w-12 h-12 flex-shrink-0 ${isListening ? 'animate-pulse' : ''}`}
+                                    onClick={toggleMic}
+                                >
+                                    {isListening ? (
+                                        <span className="relative flex h-3 w-3">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                                        </span>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /></svg>
+                                    )}
+                                </Button>
+
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    className="h-12 px-6 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg"
+                                >
+                                    전송
+                                </Button>
+                            </form>
+                        </div>
                     </>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
