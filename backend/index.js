@@ -17,7 +17,7 @@ app.use(express.static(frontendDistPath));
 const students = {};
 // Global game state
 let gameStatus = 'waiting'; // 'waiting', 'playing'
-let globalQuestionIndex = 0;
+// let globalQuestionIndex = 0; // Removed for individual progress
 const studentScores = {}; // { socketId: score }
 
 // Discussion state
@@ -26,12 +26,16 @@ let currentDiscussionIndex = 0;
 const discussionResponses = []; // Array of { nickname, text, questionIndex }
 
 const QUIZ_DATA = [
-    { question: '한국의 수도는?', options: ['서울', '부산', '인천', '대구'], answer: '서울' },
-    { question: '미국의 수도는?', options: ['뉴욕', '워싱턴 D.C.', 'LA', '시카고'], answer: '워싱턴 D.C.' },
-    { question: '일본의 수도는?', options: ['오사카', '도쿄', '교토', '후쿠오카'], answer: '도쿄' },
-    { question: '중국의 수도는?', options: ['상하이', '베이징', '홍콩', '광저우'], answer: '베이징' },
-    { question: '영국의 수도는?', options: ['맨체스터', '런던', '리버풀', '버밍엄'], answer: '런던' },
-    { question: '프랑스의 수도는?', options: ['마르세유', '파리', '리옹', '니스'], answer: '파리' },
+    { question: '장애인 화장실을 이용할때 가장 편한 문은?', options: ['폴딩도어', '앞으로 여는 문', '옆으로 미는문', '자동문'], answer: '자동문' },
+    { question: '무엇을 타고 접근성조사를 하면 좋을까요??', options: ['회전의자', '자동차', '휠체어', '자전거'], answer: '휠체어' },
+    { question: '휠체어이용자가 휠체어에서 변기로 이동할때 필요한것은?', options: ['안전손잡이', '지팡이', '발판', '목발'], answer: '안전손잡이' },
+    { question: '화장실 크기를 잴때 사용 하는것은?', options: ['줄자', '휠체어', '셀카봉', '가방'], answer: '줄자' },
+    { question: '장애인화장실의 가로X세로 최소면적은?', options: ['1M', '2M', '1.5M', '2M'], answer: '1.5M' },
+    { question: '엘리베이터가 가장 필요한 사람은?', options: ['학부모', '담임선생님', '휠체어이용자', '교장선생님'], answer: '휠체어이용자' },
+    { question: '휠체어를 타고 이동할때 장애물은?', options: ['경사로', '계단', '엘리베이터', '자동문'], answer: '계단' },
+    { question: '장애인 화장실은 몇층에 있는것이 가장 좋을까요?', options: ['1층', '2층', '3층', '4층'], answer: '1층' },
+    { question: '장애인 화장실에 필요하지 않은것은?', options: ['세면대', '변기', '안전손잡이', '청소도구함'], answer: '청소도구함' },
+    { question: '다음중 가장 이동약자는?', options: ['어린이', '노약자', '임산부', '휠체어이용자'], answer: '휠체어이용자' },
 ];
 
 const DISCUSSION_QUESTIONS = [
@@ -79,12 +83,14 @@ io.on('connection', (socket) => {
     if (gameStatus === 'playing') {
         socket.emit('gameStarted');
         // If joining mid-game, send current question
-        if (globalQuestionIndex < QUIZ_DATA.length) {
-            const q = QUIZ_DATA[globalQuestionIndex];
+        if ((studentScores[socket.id] || 0) < QUIZ_DATA.length) {
+            const q = QUIZ_DATA[studentScores[socket.id] || 0];
             socket.emit('question', {
                 question: q.question,
                 options: q.options
             });
+        } else {
+            socket.emit('finished');
         }
     }
 
@@ -108,12 +114,14 @@ io.on('connection', (socket) => {
         // If game is already playing, let them join
         if (gameStatus === 'playing') {
             socket.emit('gameStarted');
-            if (globalQuestionIndex < QUIZ_DATA.length) {
-                const q = QUIZ_DATA[globalQuestionIndex];
+            if ((studentScores[socket.id] || 0) < QUIZ_DATA.length) {
+                const q = QUIZ_DATA[studentScores[socket.id] || 0];
                 socket.emit('question', {
                     question: q.question,
                     options: q.options
                 });
+            } else {
+                socket.emit('finished');
             }
         }
 
@@ -132,7 +140,6 @@ io.on('connection', (socket) => {
     socket.on('startQuiz', () => {
         gameStatus = 'playing';
         discussionStatus = 'waiting'; // Reset discussion if quiz starts
-        globalQuestionIndex = 0;
         // Reset scores
         for (const id in students) {
             studentScores[id] = 0;
@@ -140,7 +147,7 @@ io.on('connection', (socket) => {
         io.emit('gameStarted');
         broadcastScores();
 
-        // Send first question to everyone
+        // Send first question to everyone (since everyone acts individually now)
         if (QUIZ_DATA.length > 0) {
             const q = QUIZ_DATA[0];
             io.emit('question', {
@@ -151,26 +158,26 @@ io.on('connection', (socket) => {
     });
 
     socket.on('submitAnswer', ({ answer }) => {
-        if (globalQuestionIndex >= QUIZ_DATA.length) return; // Already finished
+        const currentScore = studentScores[socket.id] || 0;
+        if (currentScore >= QUIZ_DATA.length) return; // Already finished
 
-        const currentQuestion = QUIZ_DATA[globalQuestionIndex];
+        const currentQuestion = QUIZ_DATA[currentScore];
 
         if (answer === currentQuestion.answer) {
             // Correct! 
-            // 1. Give point to this student
-            studentScores[socket.id] = (studentScores[socket.id] || 0) + 1;
+            // 1. Give point to this student (advance progress)
+            studentScores[socket.id] = currentScore + 1;
             socket.emit('correct'); // Tell winner they were correct
 
-            // 2. Advance game for EVERYONE
-            globalQuestionIndex++;
-            broadcastScores(); // Update tracks
+            // 2. Broadcast new scores so teacher sees progress
+            broadcastScores();
 
-            if (globalQuestionIndex >= QUIZ_DATA.length) {
-                io.emit('finished');
+            // 3. Send NEXT question to THIS student only
+            if (studentScores[socket.id] >= QUIZ_DATA.length) {
+                socket.emit('finished');
             } else {
-                // Send next question to EVERYONE
-                const nextQ = QUIZ_DATA[globalQuestionIndex];
-                io.emit('question', {
+                const nextQ = QUIZ_DATA[studentScores[socket.id]];
+                socket.emit('question', {
                     question: nextQ.question,
                     options: nextQ.options
                 });
@@ -181,9 +188,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('getQuestion', () => {
-        // In speed mode, questions are pushed, but if a client requests it (e.g. on reconnect), send current
-        if (globalQuestionIndex < QUIZ_DATA.length) {
-            const q = QUIZ_DATA[globalQuestionIndex];
+        // In individual mode, send the question for this specific user
+        const currentScore = studentScores[socket.id] || 0;
+        if (currentScore < QUIZ_DATA.length) {
+            const q = QUIZ_DATA[currentScore];
             socket.emit('question', {
                 question: q.question,
                 options: q.options
