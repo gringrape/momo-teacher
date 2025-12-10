@@ -68,7 +68,9 @@ const broadcastDiscussionState = () => {
         status: discussionStatus,
         currentQuestionIndex: currentDiscussionIndex,
         currentQuestion: DISCUSSION_QUESTIONS[currentDiscussionIndex],
-        responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex)
+        responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex),
+        allResponses: discussionResponses,
+        allQuestions: DISCUSSION_QUESTIONS
     });
 };
 
@@ -100,7 +102,9 @@ io.on('connection', (socket) => {
             status: discussionStatus,
             currentQuestionIndex: currentDiscussionIndex,
             currentQuestion: DISCUSSION_QUESTIONS[currentDiscussionIndex],
-            responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex)
+            responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex),
+            allResponses: discussionResponses,
+            allQuestions: DISCUSSION_QUESTIONS
         });
     }
 
@@ -131,7 +135,9 @@ io.on('connection', (socket) => {
                 status: discussionStatus,
                 currentQuestionIndex: currentDiscussionIndex,
                 currentQuestion: DISCUSSION_QUESTIONS[currentDiscussionIndex],
-                responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex)
+                responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex),
+                allResponses: discussionResponses,
+                allQuestions: DISCUSSION_QUESTIONS
             });
         }
     });

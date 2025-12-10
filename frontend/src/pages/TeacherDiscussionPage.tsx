@@ -34,6 +34,7 @@ const TeacherDiscussionPage = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [currentQuestion, setCurrentQuestion] = useState<DiscussionQuestion | null>(null);
     const [responses, setResponses] = useState<DiscussionResponse[]>([]);
+    const [allResponses, setAllResponses] = useState<DiscussionResponse[]>([]);
     const [allQuestions, setAllQuestions] = useState<DiscussionQuestion[]>([]);
     const [layoutMap, setLayoutMap] = useState<Record<string, { x: number; y: number; rotate: number; color: string }>>({});
 
@@ -94,6 +95,9 @@ const TeacherDiscussionPage = () => {
             setResponses(state.responses);
             if (state.allQuestions) {
                 setAllQuestions(state.allQuestions);
+            }
+            if (state.allResponses) {
+                setAllResponses(state.allResponses);
             }
         });
 
@@ -187,7 +191,7 @@ const TeacherDiscussionPage = () => {
         return (
             <DiscussionReport
                 questions={allQuestions.length > 0 ? allQuestions : (currentQuestion ? [currentQuestion] : [])}
-                responses={responses}
+                responses={allResponses}
                 students={students}
                 onBack={() => setShowReport(false)}
             />

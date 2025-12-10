@@ -36,6 +36,8 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
     const today = new Date();
     const formattedDate = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
+    const [participationCount, setParticipationCount] = useState(students.length.toString());
+
     // Group responses by question
     const responsesByQuestion = questions.map((_, index) =>
         responses.filter(r => r.questionIndex === index)
@@ -66,7 +68,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                 </header>
 
                 <div className="p-8 space-y-8">
-                    {/* Section 1: Why we did this */}
+                    {/* Section 1: Why we did this (Now dynamic) */}
                     <section className="bg-sky-50 rounded-2xl p-8 border border-sky-100">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-sky-200 p-2 rounded-full">
@@ -74,18 +76,33 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                             </div>
                             <h2 className="text-xl font-bold text-slate-800">우리가 왜 이 활동을 했나요?</h2>
                         </div>
-                        <div className="space-y-4">
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-sky-100 flex items-start gap-3">
-                                <span className="text-xl">🏫</span>
-                                <p className="text-slate-700 font-medium">우리 서울숭인초등학교에는 <strong>통합교실</strong>이 있어요! 함께 공부하는 친구들을 위해 공부하고 싶습니다.</p>
-                            </div>
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-sky-100 flex items-start gap-3">
-                                <span className="text-xl">♿</span>
-                                <p className="text-slate-700 font-medium">그래서 우리는 직접 <strong>휠체어</strong>를 타고 학교 시설을 체험해보았어요. 휠체어 탄 친구들이 얼마나 불편한지 직접 느껴보고 싶었거든요!</p>
-                            </div>
-                            <div className="bg-sky-100 p-4 rounded-xl flex items-start gap-3">
-                                <span className="text-xl">👥</span>
-                                <p className="text-sky-900 font-bold">6명의 친구들이 함께 조사했고, 선생님과 토론하면서 우리가 느낀 점을 이야기했어요!</p>
+
+                        {/* Dynamic Responses for Q1 (Index 0) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            {responsesByQuestion[0] && responsesByQuestion[0].length > 0 ? (
+                                responsesByQuestion[0].map((resp, idx) => (
+                                    <div key={idx} className={`p-4 rounded-lg shadow-sm font-medium text-slate-700 border-l-4 ${['border-sky-400 bg-white', 'border-indigo-400 bg-white'][idx % 2]
+                                        }`}>
+                                        <p className="mb-2 text-sm leading-relaxed">"{resp.text}"</p>
+                                        <p className="text-right text-xs opacity-70">- {resp.nickname}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-span-2 text-center text-slate-400 text-sm py-4">
+                                    <p>아직 작성된 내용이 없어요.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-sky-100 p-4 rounded-xl flex items-center gap-3">
+                            <span className="text-xl">👥</span>
+                            <div className="flex items-center gap-1 font-bold text-sky-900">
+                                <Input
+                                    className="w-16 text-center bg-white border-sky-200 h-8 font-bold text-sky-900 focus-visible:ring-sky-300"
+                                    value={participationCount}
+                                    onChange={(e) => setParticipationCount(e.target.value)}
+                                />
+                                <span>명의 친구들이 함께 조사했고, 선생님과 토론하면서 우리가 느낀 점을 이야기했어요!</span>
                             </div>
                         </div>
                     </section>
