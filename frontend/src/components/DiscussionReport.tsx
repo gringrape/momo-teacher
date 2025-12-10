@@ -81,10 +81,14 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             {responsesByQuestion[0] && responsesByQuestion[0].length > 0 ? (
                                 responsesByQuestion[0].map((resp, idx) => (
-                                    <div key={idx} className={`p-4 rounded-lg shadow-sm font-medium text-slate-700 border-l-4 ${['border-sky-400 bg-white', 'border-indigo-400 bg-white'][idx % 2]
-                                        }`}>
-                                        <p className="mb-2 text-sm leading-relaxed">"{resp.text}"</p>
-                                        <p className="text-right text-xs opacity-70">- {resp.nickname}</p>
+                                    <div key={idx}
+                                        className={`relative p-6 rounded-sm shadow-md font-medium text-slate-700 aspect-[1.8/1] min-h-[160px] flex flex-col justify-between transition-transform hover:scale-105 hover:z-10 ${['bg-[#FFF7B1]', 'bg-[#FFD1DA]', 'bg-[#D7F1FD]', 'bg-[#E2F0CB]'][idx % 4]
+                                            }`}
+                                        style={{ transform: `rotate(${(idx * 13 % 10) - 5}deg)` }}
+                                    >
+                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 bg-white/30 backdrop-blur-[1px] shadow-sm rotate-[2deg]"></div>
+                                        <p className="mb-4 text-base leading-relaxed overflow-y-auto font-handwriting">"{resp.text}"</p>
+                                        <p className="text-right text-sm font-bold opacity-80">- {resp.nickname}</p>
                                     </div>
                                 ))
                             ) : (
@@ -132,10 +136,14 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-0 md:ml-12">
                                             {responsesByQuestion[originalIdx] && responsesByQuestion[originalIdx].length > 0 ? (
                                                 responsesByQuestion[originalIdx].map((resp, rIdx) => (
-                                                    <div key={rIdx} className={`p-4 rounded-lg shadow-sm font-medium text-slate-700 border-l-4 ${['border-yellow-400 bg-yellow-50', 'border-green-400 bg-green-50', 'border-pink-400 bg-pink-50', 'border-blue-400 bg-blue-50'][rIdx % 4]
-                                                        }`}>
-                                                        <p className="mb-2 text-sm leading-relaxed">"{resp.text}"</p>
-                                                        <p className="text-right text-xs opacity-70">- {resp.nickname}</p>
+                                                    <div key={rIdx}
+                                                        className={`relative p-6 rounded-sm shadow-md font-medium text-slate-700 aspect-[1.8/1] min-h-[160px] flex flex-col justify-between transition-transform hover:scale-105 hover:z-10 ${['bg-[#FFF7B1]', 'bg-[#FFD1DA]', 'bg-[#D7F1FD]', 'bg-[#E2F0CB]'][rIdx % 4]
+                                                            }`}
+                                                        style={{ transform: `rotate(${(rIdx * 17 % 10) - 5}deg)` }}
+                                                    >
+                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 bg-white/30 backdrop-blur-[1px] shadow-sm rotate-[2deg]"></div>
+                                                        <p className="mb-4 text-base leading-relaxed overflow-y-auto font-handwriting">"{resp.text}"</p>
+                                                        <p className="text-right text-sm font-bold opacity-80">- {resp.nickname}</p>
                                                     </div>
                                                 ))
                                             ) : (
