@@ -4,7 +4,7 @@
   "description": "Backend for Momo Teacher",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon index.js",
     "build:frontend": "cd ../frontend && npm install && npm run build",
     "serve": "npm run build:frontend && npm start"
   },
@@ -14,5 +14,8 @@
   "dependencies": {
     "express": "^5.1.0",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }
