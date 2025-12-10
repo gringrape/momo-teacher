@@ -159,7 +159,7 @@ const TeacherDiscussionPage = () => {
                             </p>
                             <div className="pt-4">
                                 <Button onClick={handleNextQuestion} variant="outline" size="lg">
-                                    {currentQuestionIndex < 3 ? '다음 질문으로 넘어가기' : '토론 마무리하기'}
+                                    {currentQuestionIndex < 3 ? '다음 질문으로 넘어가기' : '개선건의서 만들기'}
                                 </Button>
                             </div>
                         </CardContent>
