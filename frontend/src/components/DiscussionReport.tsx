@@ -37,6 +37,15 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
     const formattedDate = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
     const [participationCount, setParticipationCount] = useState(students.length.toString());
+    const [customStudents, setCustomStudents] = useState<Student[]>([]);
+    const [teacherName, setTeacherName] = useState("");
+
+    const handleAddStudent = () => {
+        const name = window.prompt("추가할 학생의 이름을 입력해주세요.");
+        if (name && name.trim()) {
+            setCustomStudents(prev => [...prev, { id: `custom-${Date.now()}`, nickname: name.trim() }]);
+        }
+    };
 
     // Group responses by question
     const responsesByQuestion = questions.map((_, index) =>
@@ -209,61 +218,93 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     </section>
 
                     {/* Section 5: Student Signatures */}
-                    <section className="bg-white rounded-2xl p-8 border-2 border-slate-100">
+                    <section className="bg-white rounded-2xl p-8 border-[3px] border-cyan-100">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-cyan-100 p-2 rounded-full">
                                 <Users className="w-6 h-6 text-cyan-600" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-slate-800">참여 학생 서명</h2>
-                                <p className="text-slate-500 text-sm">이 건의를 함께 만든 친구들이에요</p>
+                                <p className="text-slate-500 text-sm">이 건의서를 함께 만든 친구들이에요!</p>
                             </div>
                         </div>
 
-                        <div className="bg-slate-50 p-6 rounded-xl text-center mb-6">
-                            <p className="text-slate-700 font-bold">"우리는 모든 친구들이 <span className="text-blue-600">불편함 없이</span> 학교생활을 할 수 있기를 바라며, 이 건의서를 교장선생님께 정중히 제출합니다."</p>
+                        <div className="bg-cyan-50/50 p-6 rounded-xl text-center mb-6 border border-cyan-100">
+                            <p className="text-slate-700 font-bold">"우리는 모든 친구들이 <span className="text-cyan-600">불편함 없이</span> 학교생활을 할 수 있기를 바라며, 이 건의서를 교장선생님께 정중히 제출합니다."</p>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            {students.length > 0 ? (
-                                students.map((s) => (
-                                    <div key={s.id} className="bg-white border-2 border-slate-100 rounded-lg p-4 text-center hover:border-blue-200 transition-colors">
-                                        <p className="font-bold text-slate-800 text-lg mb-1">{s.nickname}</p>
-                                        <span className="text-slate-400 font-serif text-sm">(서명)</span>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="col-span-4 text-center text-muted-foreground py-4">참여한 학생이 없습니다.</p>
-                            )}
+                            {[...students, ...customStudents].map((s) => (
+                                <div key={s.id} className="bg-white border-2 border-cyan-50 rounded-lg p-4 text-center hover:border-cyan-200 transition-colors group relative shadow-sm">
+                                    <p className="font-bold text-slate-800 text-lg mb-1">{s.nickname}</p>
+                                    <span className="text-slate-400 font-serif text-sm">(서명)</span>
+                                    {s.id.startsWith('custom-') && (
+                                        <button
+                                            onClick={() => setCustomStudents(prev => prev.filter(st => st.id !== s.id))}
+                                            className="absolute top-1 right-1 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            ×
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                onClick={handleAddStudent}
+                                className="bg-cyan-50/50 border-2 border-dashed border-cyan-200 rounded-lg p-4 flex flex-col items-center justify-center text-cyan-400 hover:border-cyan-400 hover:text-cyan-600 transition-all min-h-[88px]"
+                            >
+                                <span className="text-2xl font-light">+</span>
+                                <span className="text-xs mt-1">추가하기</span>
+                            </button>
                         </div>
 
-                        <div className="mt-8 flex justify-center gap-12 text-center text-sm text-slate-500 font-medium">
+                        <div className="mt-8 pt-8 border-t border-slate-100 flex justify-center gap-16 text-center text-sm text-slate-500 font-medium">
                             <div>
-                                <p className="mb-1 text-slate-400">학교</p>
-                                <p className="text-slate-800 text-base">서울숭인초등학교</p>
+                                <p className="mb-1 text-slate-400 text-xs">학교</p>
+                                <p className="text-slate-800 text-base font-bold">서울숭인초등학교</p>
                             </div>
                             <div>
-                                <p className="mb-1 text-slate-400">참여 학생</p>
-                                <p className="text-slate-800 text-base">{students.length}명</p>
+                                <p className="mb-1 text-slate-400 text-xs">참여 학생</p>
+                                <p className="text-slate-800 text-base font-bold">{students.length + customStudents.length}명</p>
                             </div>
                             <div>
-                                <p className="mb-1 text-slate-400">작성일</p>
-                                <p className="text-slate-800 text-base">{formattedDate}</p>
+                                <p className="mb-1 text-slate-400 text-xs">작성일</p>
+                                <p className="text-slate-800 text-base font-bold">{formattedDate}</p>
                             </div>
                         </div>
                     </section>
 
                     {/* Footer: Teacher Sign */}
-                    <section className="bg-slate-50 rounded-xl p-8 text-center border-t border-slate-200 mt-12">
-                        <div className="flex items-center gap-2 justify-center mb-4">
-                            <Users className="w-5 h-5 text-slate-400" />
-                            <h3 className="font-bold text-slate-700">지도 교사 확인</h3>
+                    <section className="bg-[#f0f9ff] rounded-2xl p-8 border border-cyan-100 mt-12">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="bg-white p-2 rounded-full border border-cyan-100">
+                                <Users className="w-5 h-5 text-cyan-600" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="font-bold text-slate-800 text-lg">지도 교사 확인</h3>
+                                <p className="text-slate-500 text-xs">학생들의 활동을 지도하고 확인합니다</p>
+                            </div>
                         </div>
-                        <p className="text-slate-500 text-sm mb-8">학생들의 활동을 지도하고 확인합니다.</p>
 
-                        <div className="inline-block border-b-2 border-slate-800 pb-2 px-12">
-                            <span className="text-2xl font-serif font-bold tracking-widest text-slate-800 mr-4">____ 선생님</span>
-                            <span className="text-slate-400 font-serif">(서명)</span>
+                        <div className="bg-white p-6 rounded-xl border border-cyan-100 text-slate-600 text-sm leading-relaxed mb-8 shadow-sm">
+                            위 학생들이 직접 휠체어를 타고 학교 시설을 체험하며 조사한 내용을 바탕으로 작성된 건의서입니다. 학생들의 진지한 참여와 제안이 실제 개선으로 이어지기를 희망하며 이를 확인합니다.
+                        </div>
+
+                        <div className="flex justify-center">
+                            <div className="bg-white px-10 py-8 rounded-xl border-2 border-dashed border-slate-200 text-center min-w-[300px]">
+                                <p className="text-base text-slate-500 font-bold mb-6">담당 교사</p>
+                                <div className="flex flex-col items-center">
+                                    <div className="flex items-center justify-center gap-3 mb-10">
+                                        <Input
+                                            className="w-25 text-center text-2xl font-bold border border-slate-200 rounded-full py-4 h-auto focus-visible:ring-2 focus-visible:ring-cyan-100 placeholder:text-slate-500 placeholder:font-medium text-slate-700 shadow-sm"
+                                            value={teacherName}
+                                            onChange={(e) => setTeacherName(e.target.value)}
+                                            placeholder="이름"
+                                        />
+                                        <span className="text-1.5xl font-bold text-slate-700 shrink-0">선생님</span>
+                                    </div>
+                                    <p className="text-slate-300 text-sm font-serif select-none">(서명)</p>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
