@@ -50,18 +50,27 @@ const TeacherDiscussionPage = () => {
     const dragStartPos = useRef<{ x: number, y: number, itemX: number, itemY: number } | null>(null);
 
     useEffect(() => {
-        // ... (layout effect)
+        // Calculate layouts for new responses
         setLayoutMap(prev => {
             const next = { ...prev };
             let changed = false;
-            responses.forEach(r => {
+
+            responses.forEach((r, index) => {
                 const key = `${r.nickname}-${r.timestamp}`;
                 if (!next[key]) {
+                    // Grid Layout Logic
+                    // 3 columns: 0, 1, 2
+                    const col = index % 3;
+                    const row = Math.floor(index / 3);
+
+                    // Base percentages + jitter
+                    // X: 5%, 38%, 71% (spread across width)
+                    // Y: Starts at 5%, increments by ~32%
                     next[key] = {
-                        x: Math.random() * 70 + 5, // 5% to 75%
-                        y: Math.random() * 60 + 5, // 5% to 65%
-                        rotate: Math.random() * 12 - 6, // -6 to +6 degrees
-                        color: ['bg-[#FFF7B1] text-slate-800', 'bg-[#FFD1DA] text-slate-800', 'bg-[#D7F1FD] text-slate-800', 'bg-[#E2F0CB] text-slate-800'][Math.floor(Math.random() * 4)]
+                        x: (col * 33) + 2 + Math.random() * 3,
+                        y: (row * 32) + 5 + Math.random() * 3, // Adjusted spacing for vertical flow
+                        rotate: Math.random() * 6 - 3, // Slight rotation -3 to +3
+                        color: ['bg-[#FFF7B1] text-slate-800', 'bg-[#FFD1DA] text-slate-800', 'bg-[#D7F1FD] text-slate-800', 'bg-[#E2F0CB] text-slate-800'][index % 4]
                     };
                     changed = true;
                 }
@@ -330,7 +339,7 @@ const TeacherDiscussionPage = () => {
 
                     <div
                         ref={containerRef}
-                        className="relative w-full h-[600px] bg-amber-50 rounded-xl border-4 border-amber-200 overflow-hidden shadow-inner touch-none"
+                        className="relative w-full h-[600px] bg-amber-50 rounded-xl border-4 border-amber-200 overflow-y-auto overflow-x-hidden shadow-inner touch-none"
                     >
                         {/* Message when empty */}
                         {responses.length === 0 && (
