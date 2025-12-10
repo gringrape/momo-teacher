@@ -53,7 +53,25 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8 font-sans">
+        <div className="min-h-screen bg-slate-50 p-8 font-sans print:p-0 print:bg-white">
+            <style>{`
+                @media print {
+                    @page {
+                        margin: 15mm;
+                        size: auto;
+                    }
+                    body {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    /* Ensure icons and backgrounds print correctly */
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                }
+            `}</style>
+
             {/* Top Navigation */}
             <div className="max-w-5xl mx-auto flex justify-between items-center mb-8 print:hidden">
                 <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
@@ -67,7 +85,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
             </div>
 
             {/* Report Container */}
-            <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-3xl overflow-hidden print:shadow-none">
+            <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-3xl overflow-hidden print:shadow-none print:overflow-visible print:max-w-none print:w-full print:rounded-none">
 
                 {/* Header */}
                 <header className="text-center pt-16 pb-8 px-8 bg-white">
@@ -78,7 +96,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
 
                 <div className="p-8 space-y-8">
                     {/* Section 1: Why we did this (Now dynamic) */}
-                    <section className="bg-sky-50 rounded-2xl p-8 border border-sky-100">
+                    <section className="bg-sky-50 rounded-2xl p-8 border border-sky-100 print:break-inside-avoid">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-sky-200 p-2 rounded-full">
                                 <Users className="w-6 h-6 text-sky-700" />
@@ -137,7 +155,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                                 const IconComponent = icons[slicedIdx % icons.length];
 
                                 return (
-                                    <div key={originalIdx} className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                                    <div key={originalIdx} className="bg-slate-50 rounded-xl p-6 border border-slate-200 print:break-inside-avoid">
                                         <div className="flex items-center gap-4 mb-6 bg-cyan-50 p-5 rounded-2xl border-2 border-dashed border-cyan-300">
                                             <div className="bg-cyan-100 p-3 rounded-full flex-shrink-0">
                                                 <IconComponent className="w-6 h-6 text-cyan-600" />
@@ -172,7 +190,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     </section>
 
                     {/* Section 3: What we felt (Editable) */}
-                    <section className="bg-[#fff0f5] rounded-3xl p-8 border-2 border-pink-200 shadow-sm">
+                    <section className="bg-[#fff0f5] rounded-3xl p-8 border-2 border-pink-200 shadow-sm print:break-inside-avoid">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-pink-400 p-2.5 rounded-full shadow-sm">
                                 <Sparkles className="w-6 h-6 text-white" />
@@ -197,7 +215,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     </section>
 
                     {/* Section 4: Message to Principal (Editable) */}
-                    <section className="bg-amber-50 rounded-2xl p-8 border border-amber-100">
+                    <section className="bg-amber-50 rounded-2xl p-8 border border-amber-100 print:break-inside-avoid">
                         <div className="flex items-center gap-3 mb-2">
                             <div className="bg-amber-200 p-2 rounded-full">
                                 <PenTool className="w-6 h-6 text-amber-800" />
@@ -218,7 +236,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     </section>
 
                     {/* Section 5: Student Signatures */}
-                    <section className="bg-white rounded-2xl p-8 border-[3px] border-cyan-100">
+                    <section className="bg-white rounded-2xl p-8 border-[3px] border-cyan-100 print:break-inside-avoid">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-cyan-100 p-2 rounded-full">
                                 <Users className="w-6 h-6 text-cyan-600" />
@@ -274,7 +292,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     </section>
 
                     {/* Footer: Teacher Sign */}
-                    <section className="bg-[#f0f9ff] rounded-2xl p-8 border border-cyan-100 mt-12">
+                    <section className="bg-[#f0f9ff] rounded-2xl p-8 border border-cyan-100 mt-12 print:break-inside-avoid">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-white p-2 rounded-full border border-cyan-100">
                                 <Users className="w-5 h-5 text-cyan-600" />
