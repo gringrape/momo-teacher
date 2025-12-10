@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Users, MessageCircle, Heart, PenTool, CheckCircle, Accessibility, Wrench, Sparkles } from 'lucide-react';
+import { ArrowLeft, Download, Users, MessageCircle, Heart, PenTool, CheckCircle, Accessibility, Wrench, Sparkles, Check, X } from 'lucide-react';
 
 interface Student {
     id: string;
@@ -40,11 +40,21 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
     const [customStudents, setCustomStudents] = useState<Student[]>([]);
     const [teacherName, setTeacherName] = useState("");
 
-    const handleAddStudent = () => {
-        const name = window.prompt("추가할 학생의 이름을 입력해주세요.");
-        if (name && name.trim()) {
-            setCustomStudents(prev => [...prev, { id: `custom-${Date.now()}`, nickname: name.trim() }]);
+    // Inline student add state
+    const [isAddingStudent, setIsAddingStudent] = useState(false);
+    const [newStudentName, setNewStudentName] = useState("");
+
+    const confirmAddStudent = () => {
+        if (newStudentName.trim()) {
+            setCustomStudents(prev => [...prev, { id: `custom-${Date.now()}`, nickname: newStudentName.trim() }]);
+            setNewStudentName("");
+            setIsAddingStudent(false);
         }
+    };
+
+    const cancelAddStudent = () => {
+        setNewStudentName("");
+        setIsAddingStudent(false);
     };
 
     // Group responses by question
@@ -266,13 +276,37 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                                     )}
                                 </div>
                             ))}
-                            <button
-                                onClick={handleAddStudent}
-                                className="bg-cyan-50/50 border-2 border-dashed border-cyan-200 rounded-lg p-4 flex flex-col items-center justify-center text-cyan-400 hover:border-cyan-400 hover:text-cyan-600 transition-all min-h-[88px]"
-                            >
-                                <span className="text-2xl font-light">+</span>
-                                <span className="text-xs mt-1">추가하기</span>
-                            </button>
+                            {isAddingStudent ? (
+                                <div className="bg-white border-2 border-cyan-200 rounded-lg p-2 flex flex-col items-center justify-center gap-2 min-h-[88px]">
+                                    <Input
+                                        autoFocus
+                                        value={newStudentName}
+                                        onChange={(e) => setNewStudentName(e.target.value)}
+                                        className="w-24 h-8 text-sm px-2 text-center border-slate-200 focus-visible:ring-cyan-200"
+                                        placeholder="이름"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') confirmAddStudent();
+                                            if (e.key === 'Escape') cancelAddStudent();
+                                        }}
+                                    />
+                                    <div className="flex gap-2">
+                                        <button onClick={confirmAddStudent} className="p-1.5 rounded-md bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+                                            <Check className="w-4 h-4" />
+                                        </button>
+                                        <button onClick={cancelAddStudent} className="p-1.5 rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => setIsAddingStudent(true)}
+                                    className="bg-cyan-50/50 border-2 border-dashed border-cyan-200 rounded-lg p-4 flex flex-col items-center justify-center text-cyan-400 hover:border-cyan-400 hover:text-cyan-600 transition-all min-h-[88px]"
+                                >
+                                    <span className="text-2xl font-light">+</span>
+                                    <span className="text-xs mt-1">추가하기</span>
+                                </button>
+                            )}
                         </div>
 
                         <div className="mt-8 pt-8 border-t border-slate-100 flex justify-center gap-16 text-center text-sm text-slate-500 font-medium">
