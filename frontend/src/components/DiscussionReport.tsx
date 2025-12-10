@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Users, MessageCircle, Heart, PenTool, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Download, Users, MessageCircle, Heart, PenTool, CheckCircle, Accessibility, Wrench, Sparkles } from 'lucide-react';
 
 interface Student {
     id: string;
@@ -124,13 +124,19 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                         <div className="space-y-6">
                             {questions.slice(1).map((q, slicedIdx) => {
                                 const originalIdx = slicedIdx + 1;
+                                const icons = [Accessibility, Wrench, Heart];
+                                const IconComponent = icons[slicedIdx % icons.length];
+
                                 return (
                                     <div key={originalIdx} className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                        <div className="flex items-start gap-4 mb-4">
-                                            <div className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-bold text-sm whitespace-nowrap">
-                                                질문 {slicedIdx + 1}
+                                        <div className="flex items-center gap-4 mb-6 bg-cyan-50 p-5 rounded-2xl border-2 border-dashed border-cyan-300">
+                                            <div className="bg-cyan-100 p-3 rounded-full flex-shrink-0">
+                                                <IconComponent className="w-6 h-6 text-cyan-600" />
                                             </div>
-                                            <h3 className="text-lg font-bold text-slate-800">{q.question}</h3>
+                                            <div>
+                                                <span className="text-cyan-600 font-bold text-sm block mb-1">선생님 질문</span>
+                                                <h3 className="text-xl font-bold text-slate-800 leading-snug">{q.question}</h3>
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-0 md:ml-12">
@@ -157,24 +163,27 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     </section>
 
                     {/* Section 3: What we felt (Editable) */}
-                    <section className="bg-pink-50 rounded-2xl p-8 border border-pink-100">
+                    <section className="bg-[#fff0f5] rounded-3xl p-8 border-2 border-pink-200 shadow-sm">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="bg-pink-200 p-2 rounded-full">
-                                <Heart className="w-6 h-6 text-pink-700" />
+                            <div className="bg-pink-400 p-2.5 rounded-full shadow-sm">
+                                <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <h2 className="text-xl font-bold text-slate-800">우리가 느낀 점</h2>
                         </div>
-                        <div className="bg-white p-1 rounded-xl shadow-sm border border-pink-200">
+
+                        <div className="bg-white p-2 rounded-2xl shadow-sm border border-pink-100 mb-6 relative">
+                            <div className="absolute top-8 left-8 text-2xl">💭</div>
                             <Textarea
-                                className="w-full min-h-[120px] p-6 text-base leading-relaxed text-slate-700 resize-none border-none focus-visible:ring-0"
+                                className="w-full min-h-[140px] p-6 pl-16 text-base leading-relaxed text-slate-700 resize-none border-none focus-visible:ring-0 bg-transparent"
                                 value={feelingConfig}
                                 onChange={(e) => setFeelingConfig(e.target.value)}
                                 placeholder="활동을 하며 느낀 점을 자유롭게 적어주세요..."
                             />
                         </div>
-                        <div className="mt-4 flex items-center gap-2 text-pink-600 bg-pink-100 px-4 py-2 rounded-lg text-sm w-fit">
-                            <Heart className="w-4 h-4 fill-pink-600" />
-                            <p className="font-semibold">모든 친구들이 편하게 학교생활을 할 수 있도록, 우리가 발견한 문제점들이 꼭 고쳐졌으면 좋겠어요! 🙏</p>
+
+                        <div className="flex items-center gap-3 bg-pink-100/80 px-6 py-4 rounded-xl text-slate-700">
+                            <Heart className="w-6 h-6 text-pink-500 fill-pink-500 flex-shrink-0" />
+                            <p className="font-semibold text-sm md:text-base leading-snug">모든 친구들이 편하게 학교생활을 할 수 있도록, 우리가 발견한 문제점들이 꼭 고쳐졌으면 좋겠어요! 🙏</p>
                         </div>
                     </section>
 
@@ -202,8 +211,8 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                     {/* Section 5: Student Signatures */}
                     <section className="bg-white rounded-2xl p-8 border-2 border-slate-100">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="bg-slate-200 p-2 rounded-full">
-                                <CheckCircle className="w-6 h-6 text-slate-700" />
+                            <div className="bg-cyan-100 p-2 rounded-full">
+                                <Users className="w-6 h-6 text-cyan-600" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-slate-800">참여 학생 서명</h2>
@@ -220,7 +229,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                                 students.map((s) => (
                                     <div key={s.id} className="bg-white border-2 border-slate-100 rounded-lg p-4 text-center hover:border-blue-200 transition-colors">
                                         <p className="font-bold text-slate-800 text-lg mb-1">{s.nickname}</p>
-                                        <span className="text-2xl">✍️</span>
+                                        <span className="text-slate-400 font-serif text-sm">(서명)</span>
                                     </div>
                                 ))
                             ) : (
@@ -239,7 +248,7 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                             </div>
                             <div>
                                 <p className="mb-1 text-slate-400">작성일</p>
-                                <p className="text-slate-800 text-base">2024년 12월</p>
+                                <p className="text-slate-800 text-base">{formattedDate}</p>
                             </div>
                         </div>
                     </section>
