@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import QRCode from 'react-qr-code';
-import { MessageCircle } from 'lucide-react';
-import MindMap from '@/components/MindMap';
 
 interface Student {
     id: string;
@@ -32,6 +30,33 @@ const TeacherDiscussionPage = () => {
     const [currentQuestion, setCurrentQuestion] = useState<DiscussionQuestion | null>(null);
     const [responses, setResponses] = useState<DiscussionResponse[]>([]);
     const [allQuestions, setAllQuestions] = useState<DiscussionQuestion[]>([]);
+    const [layoutMap, setLayoutMap] = useState<Record<string, { x: number; y: number; rotate: number; color: string }>>({});
+
+    // Drag and Drop State
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [draggingId, setDraggingId] = useState<string | null>(null);
+    const dragStartPos = useRef<{ x: number, y: number, itemX: number, itemY: number } | null>(null);
+
+    useEffect(() => {
+        // Generate stable layouts for new responses
+        setLayoutMap(prev => {
+            const next = { ...prev };
+            let changed = false;
+            responses.forEach(r => {
+                const key = `${r.nickname}-${r.timestamp}`;
+                if (!next[key]) {
+                    next[key] = {
+                        x: Math.random() * 70 + 5, // 5% to 75%
+                        y: Math.random() * 60 + 5, // 5% to 65%
+                        rotate: Math.random() * 12 - 6, // -6 to +6 degrees
+                        color: ['bg-[#FFF7B1] text-slate-800', 'bg-[#FFD1DA] text-slate-800', 'bg-[#D7F1FD] text-slate-800', 'bg-[#E2F0CB] text-slate-800'][Math.floor(Math.random() * 4)]
+                    };
+                    changed = true;
+                }
+            });
+            return changed ? next : prev;
+        });
+    }, [responses]);
 
     useEffect(() => {
         const newSocket = io('/', {
@@ -68,6 +93,58 @@ const TeacherDiscussionPage = () => {
         };
     }, []);
 
+    // Drag Handlers
+    const handlePointerDown = (e: React.PointerEvent, key: string, currentLayout: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!containerRef.current) return;
+
+        setDraggingId(key);
+        dragStartPos.current = {
+            x: e.clientX,
+            y: e.clientY,
+            itemX: currentLayout.x,
+            itemY: currentLayout.y
+        };
+
+        (e.target as Element).setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!draggingId || !dragStartPos.current || !containerRef.current) return;
+
+        e.preventDefault();
+
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const deltaX = e.clientX - dragStartPos.current.x;
+        const deltaY = e.clientY - dragStartPos.current.y;
+
+        // Convert delta pixels to percentage of container
+        const deltaXPercent = (deltaX / containerRect.width) * 100;
+        const deltaYPercent = (deltaY / containerRect.height) * 100;
+
+        const newX = dragStartPos.current.itemX + deltaXPercent;
+        const newY = dragStartPos.current.itemY + deltaYPercent;
+
+        setLayoutMap(prev => ({
+            ...prev,
+            [draggingId]: {
+                ...prev[draggingId],
+                x: newX,
+                y: newY
+            }
+        }));
+    };
+
+    const handlePointerUp = (e: React.PointerEvent) => {
+        if (draggingId) {
+            e.preventDefault();
+            setDraggingId(null);
+            dragStartPos.current = null;
+        }
+    };
+
     const handleStartDiscussion = () => {
         if (socket) {
             socket.emit('startDiscussion');
@@ -92,15 +169,14 @@ const TeacherDiscussionPage = () => {
             </div>
 
             {discussionStatus === 'finished' ? (
-                <div className="animate-in fade-in duration-700">
-                    <Card className="border-none shadow-none bg-transparent">
-                        <CardContent className="p-0">
-                            <MindMap questions={allQuestions} responses={responses} />
-                        </CardContent>
-                    </Card>
-                    <div className="mt-8 text-center">
+                <div className="animate-in fade-in duration-700 flex flex-col items-center justify-center min-h-[50vh]">
+                    <h2 className="text-4xl font-bold mb-4">토론이 종료되었습니다</h2>
+                    <p className="text-xl text-muted-foreground mb-8">
+                        모든 학생들의 의견이 수집되었습니다.
+                    </p>
+                    <div className="text-center">
                         <Button onClick={() => window.location.reload()} variant="outline" size="lg">
-                            토론 다시 시작하기
+                            새로운 토론 시작하기
                         </Button>
                     </div>
                 </div>
@@ -165,20 +241,57 @@ const TeacherDiscussionPage = () => {
                         </CardContent>
                     </Card>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
-                        {responses.map((response, index) => (
-                            <div key={index} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="relative bg-white p-6 rounded-2xl rounded-tl-none shadow-md border border-slate-100">
-                                    <MessageCircle className="absolute top-0 left-0 -mt-2 -ml-2 w-8 h-8 text-primary fill-white" />
-                                    <p className="text-lg mb-3 leading-relaxed text-slate-800">
-                                        "{response.text}"
-                                    </p>
-                                    <div className="text-right font-bold text-primary">
-                                        - {response.nickname}
+                    <div
+                        ref={containerRef}
+                        className="relative w-full h-[600px] bg-amber-50 rounded-xl border-4 border-amber-200 overflow-hidden shadow-inner touch-none"
+                    >
+                        {/* Message when empty */}
+                        {responses.length === 0 && (
+                            <div className="absolute inset-0 flex items-center justify-center text-amber-300 opacity-50">
+                                <p className="text-4xl font-bold rotate-[-5deg] select-none">학생들의 답변을 기다리고 있어요...</p>
+                            </div>
+                        )}
+
+                        {responses.map((response, index) => {
+                            const key = `${response.nickname}-${response.timestamp}`;
+                            // Use pre-calculated layout or fallback
+                            const layout = layoutMap[key] || {
+                                x: 50,
+                                y: 50,
+                                rotate: 0,
+                                color: 'bg-[#FFF7B1] text-slate-800'
+                            };
+
+                            return (
+                                <div
+                                    key={index}
+                                    className={`absolute w-72 animate-in fade-in zoom-in duration-500 cursor-move ${draggingId === key ? 'z-[999] scale-105' : ''}`}
+                                    style={{
+                                        left: `${layout.x}%`,
+                                        top: `${layout.y}%`,
+                                        zIndex: draggingId === key ? 999 : index + 10,
+                                        transform: `rotate(${layout.rotate}deg)`,
+                                        touchAction: 'none'
+                                    }}
+                                    onPointerDown={(e) => handlePointerDown(e, key, layout)}
+                                    onPointerMove={handlePointerMove}
+                                    onPointerUp={handlePointerUp}
+                                    onPointerCancel={handlePointerUp}
+                                >
+                                    <div className={`relative ${layout.color} p-6 pt-8 rounded-sm shadow-md hover:shadow-2xl hover:scale-105 hover:z-[100] transition-all duration-300 min-h-[160px] flex flex-col justify-between select-none`}>
+                                        {/* Tape effect */}
+                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 bg-white/40 backdrop-blur-[1px] shadow-sm rotate-[2deg]"></div>
+
+                                        <p className="text-lg font-medium mb-4 leading-relaxed relative z-10 font-handwriting select-none">
+                                            "{response.text}"
+                                        </p>
+                                        <div className="text-right font-bold opacity-80 z-10 text-sm select-none">
+                                            - {response.nickname}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
