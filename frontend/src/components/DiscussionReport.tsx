@@ -118,30 +118,33 @@ const DiscussionReport = ({ questions, responses, students, onBack }: Discussion
                         </div>
 
                         <div className="space-y-6">
-                            {questions.map((q, qIdx) => (
-                                <div key={qIdx} className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                    <div className="flex items-start gap-4 mb-4">
-                                        <div className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-bold text-sm whitespace-nowrap">
-                                            질문 {qIdx + 1}
+                            {questions.slice(1).map((q, slicedIdx) => {
+                                const originalIdx = slicedIdx + 1;
+                                return (
+                                    <div key={originalIdx} className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                                        <div className="flex items-start gap-4 mb-4">
+                                            <div className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-bold text-sm whitespace-nowrap">
+                                                질문 {slicedIdx + 1}
+                                            </div>
+                                            <h3 className="text-lg font-bold text-slate-800">{q.question}</h3>
                                         </div>
-                                        <h3 className="text-lg font-bold text-slate-800">{q.question}</h3>
-                                    </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-0 md:ml-12">
-                                        {responsesByQuestion[qIdx].length > 0 ? (
-                                            responsesByQuestion[qIdx].map((resp, rIdx) => (
-                                                <div key={rIdx} className={`p-4 rounded-lg shadow-sm font-medium text-slate-700 border-l-4 ${['border-yellow-400 bg-yellow-50', 'border-green-400 bg-green-50', 'border-pink-400 bg-pink-50', 'border-blue-400 bg-blue-50'][rIdx % 4]
-                                                    }`}>
-                                                    <p className="mb-2 text-sm leading-relaxed">"{resp.text}"</p>
-                                                    <p className="text-right text-xs opacity-70">- {resp.nickname}</p>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-slate-400 text-sm italic py-2">아직 답변이 없어요.</p>
-                                        )}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-0 md:ml-12">
+                                            {responsesByQuestion[originalIdx] && responsesByQuestion[originalIdx].length > 0 ? (
+                                                responsesByQuestion[originalIdx].map((resp, rIdx) => (
+                                                    <div key={rIdx} className={`p-4 rounded-lg shadow-sm font-medium text-slate-700 border-l-4 ${['border-yellow-400 bg-yellow-50', 'border-green-400 bg-green-50', 'border-pink-400 bg-pink-50', 'border-blue-400 bg-blue-50'][rIdx % 4]
+                                                        }`}>
+                                                        <p className="mb-2 text-sm leading-relaxed">"{resp.text}"</p>
+                                                        <p className="text-right text-xs opacity-70">- {resp.nickname}</p>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-slate-400 text-sm italic py-2">아직 답변이 없어요.</p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
 
