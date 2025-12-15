@@ -10,7 +10,8 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 // Serve static files from the frontend dist directory
-const frontendDistPath = path.join(__dirname, '../frontend/dist');
+// Serve static files from the local public directory
+const frontendDistPath = path.join(__dirname, 'public');
 app.use(express.static(frontendDistPath));
 
 // Store connected students: { socketId: nickname }
@@ -72,6 +73,21 @@ const broadcastDiscussionState = () => {
         allResponses: discussionResponses,
         allQuestions: DISCUSSION_QUESTIONS
     });
+};
+
+// Track the teacher's socket ID
+let teacherSocketId = null;
+
+const resetGame = () => {
+    console.log('Resetting game/discussion state.');
+    gameStatus = 'waiting';
+    discussionStatus = 'waiting';
+    currentDiscussionIndex = 0;
+    discussionResponses.length = 0; // Clear discussion responses
+    // Notify everyone about the reset
+    broadcastDiscussionState(); // Resets discussion to waiting
+    // For quiz, there isn't a dedicated 'reset' event in the current frontend, 
+    // but this ensures new connections see 'waiting'.
 };
 
 // Socket.IO connection handling
@@ -144,6 +160,9 @@ io.on('connection', (socket) => {
 
     // --- Quiz Events ---
     socket.on('startQuiz', () => {
+        teacherSocketId = socket.id; // Record teacher ID
+        console.log(`Teacher started quiz: ${teacherSocketId}`);
+
         gameStatus = 'playing';
         discussionStatus = 'waiting'; // Reset discussion if quiz starts
         // Reset scores
@@ -209,6 +228,9 @@ io.on('connection', (socket) => {
 
     // --- Discussion Events ---
     socket.on('startDiscussion', () => {
+        teacherSocketId = socket.id; // Record teacher ID
+        console.log(`Teacher started discussion: ${teacherSocketId}`);
+
         discussionStatus = 'discussing';
         gameStatus = 'waiting'; // Reset quiz if discussion starts
         currentDiscussionIndex = 0;
@@ -240,11 +262,25 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
+
+        // If the teacher disconnected, reset everything
+        if (socket.id === teacherSocketId) {
+            console.log('Teacher disconnected. Resetting game.');
+            resetGame();
+            teacherSocketId = null;
+        }
+
         if (students[socket.id]) {
             delete students[socket.id];
             delete studentScores[socket.id];
             io.emit('studentListUpdate', Object.entries(students).map(([id, nickname]) => ({ id, nickname })));
             broadcastScores();
+
+            // If no students left (or everyone disconnected), reset state to waiting
+            if (Object.keys(students).length === 0) {
+                // Also reset using generic helper, just in case teacher wasn't set or cleared
+                resetGame();
+            }
         }
     });
 });
