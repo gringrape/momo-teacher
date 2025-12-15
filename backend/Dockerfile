@@ -12,6 +12,18 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV="production"
 
+# Accept build arguments
+ARG SUPABASE_URL
+ARG SUPABASE_KEY
+
+# Persist as runtime env vars
+ENV SUPABASE_URL=$SUPABASE_URL
+ENV SUPABASE_KEY=$SUPABASE_KEY
+
+# Map to VITE_ vars for frontend build (if needed)
+ENV VITE_SUPABASE_URL=$SUPABASE_URL
+ENV VITE_SUPABASE_PUBLISHABLE_KEY=$SUPABASE_KEY
+
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
