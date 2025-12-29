@@ -407,49 +407,6 @@ const AccessibilityGuidePage = () => {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>엘리베이터 정보</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>엘리베이터 위치 (건물명)</Label>
-                            <Input value={data.elevatorBuilding} onChange={(e) => handleChange('elevatorBuilding', e.target.value)} placeholder="예: 본관" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>운영 시작 층</Label>
-                                <Input value={data.elevatorFloorsStart} onChange={(e) => handleChange('elevatorFloorsStart', e.target.value)} placeholder="1" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>운영 끝 층</Label>
-                                <Input value={data.elevatorFloorsEnd} onChange={(e) => handleChange('elevatorFloorsEnd', e.target.value)} placeholder="5" />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>운영 방식</Label>
-                            <RadioGroup value={data.elevatorType} onValueChange={(v) => handleChange('elevatorType', v)}>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="누구나 탈 수 있음" id="e1" />
-                                    <Label htmlFor="e1">누구나 탈 수 있음</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="교사와 장애구성원만 탈수 있음" id="e2" />
-                                    <Label htmlFor="e2">교사와 장애구성원만 탈수 있음</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="필요할 때만 열쇠를 제공함" id="e3" />
-                                    <Label htmlFor="e3">필요할 때만 열쇠를 제공함</Label>
-                                </div>
-                            </RadioGroup>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>엘리베이터/평면도 사진</Label>
-                            <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'elevatorImage')} />
-                            {data.elevatorImage && <img src={data.elevatorImage} alt="Preview" className="h-20 object-contain border rounded" />}
-                        </div>
-                    </CardContent>
-                </Card>
 
                 <Card>
                     <CardHeader>
