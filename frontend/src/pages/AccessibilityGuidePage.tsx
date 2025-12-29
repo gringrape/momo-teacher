@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchSurveyData, SurveyResponse } from '@/api/survey';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,27 +26,6 @@ interface GuideData {
     inaccessibleAreas: string;
     otherInfo: string;
     contactInfo: string;
-}
-
-interface SurveyResponse {
-    id: number;
-    team_name: string;
-    building: string;
-    floor: string;
-    gender: string;
-    door_type: string;
-    width: string;
-    height: string;
-    can_use_restroom: string;
-    created_at: string;
-    photos: string[] | null;
-    team_members?: string;
-    dream_school?: string;
-    why_not_use?: string;
-    handrail_types?: string;
-    has_sink?: string;
-    can_wash?: string;
-    sink_height?: string;
 }
 
 interface RestroomInfo {
@@ -83,127 +63,124 @@ const AccessibilityGuidePage = () => {
     const [surveyData, setSurveyData] = useState<SurveyResponse[]>([]);
 
     useEffect(() => {
-        const fetchSurveyData = async () => {
+        const loadSurveyData = async () => {
             try {
-                const response = await fetch('/api/survey');
-                if (response.ok) {
-                    const fetchedData: SurveyResponse[] = await response.json();
-                    setSurveyData(fetchedData);
+                const fetchedData = await fetchSurveyData();
+                setSurveyData(fetchedData);
 
-                    // Normalize and Group by building AND floor AND gender
-                    const groups: { [key: string]: SurveyResponse[] } = {};
+                // Normalize and Group by building AND floor AND gender
+                const groups: { [key: string]: SurveyResponse[] } = {};
 
-                    fetchedData.forEach(item => {
-                        const building = String(item.building || 'Unknown').trim();
-                        const floor = String(item.floor || '?').trim();
+                fetchedData.forEach(item => {
+                    const building = String(item.building || 'Unknown').trim();
+                    const floor = String(item.floor || '?').trim();
 
-                        // Robust Normalization for Gender
-                        let rawGender = String(item.gender || '').trim().toLowerCase();
-                        let gender = '남녀공용'; // default
+                    // Robust Normalization for Gender
+                    let rawGender = String(item.gender || '').trim().toLowerCase();
+                    let gender = '남녀공용'; // default
 
-                        if (rawGender.includes('공용') || rawGender.includes('남녀') || rawGender.includes('common') || rawGender.includes('unisex') || rawGender.includes('all')) {
-                            gender = '남녀공용';
-                        } else if (rawGender.includes('여') || rawGender.includes('female') || rawGender.includes('woman') || rawGender.includes('women') || rawGender.includes('girl')) {
-                            gender = '여자';
-                        } else if (rawGender.includes('남') || rawGender.includes('male') || rawGender.includes('man') || rawGender.includes('men') || rawGender.includes('boy')) {
-                            gender = '남자';
-                        } else {
-                            if (item.gender === '남자' || item.gender === '여자') gender = item.gender;
+                    if (rawGender.includes('공용') || rawGender.includes('남녀') || rawGender.includes('common') || rawGender.includes('unisex') || rawGender.includes('all')) {
+                        gender = '남녀공용';
+                    } else if (rawGender.includes('여') || rawGender.includes('female') || rawGender.includes('woman') || rawGender.includes('women') || rawGender.includes('girl')) {
+                        gender = '여자';
+                    } else if (rawGender.includes('남') || rawGender.includes('male') || rawGender.includes('man') || rawGender.includes('men') || rawGender.includes('boy')) {
+                        gender = '남자';
+                    } else {
+                        if (item.gender === '남자' || item.gender === '여자') gender = item.gender;
+                    }
+
+                    // Robust Normalization for Door Type
+                    let rawDoor = String(item.door_type || '').trim().toLowerCase();
+                    let door = '자동문'; // default
+
+                    if (rawDoor.includes('자동') || rawDoor.includes('auto')) door = '자동문';
+                    if (rawDoor.includes('버튼') || rawDoor.includes('button')) door = '버튼자동문';
+                    if (rawDoor.includes('여닫') || rawDoor.includes('swing') || rawDoor.includes('pull') || rawDoor.includes('push')) door = '여닫이문';
+                    if (rawDoor.includes('미닫') || rawDoor.includes('sliding') || rawDoor.includes('slide')) door = '미닫이문';
+                    if (rawDoor.includes('폴딩') || rawDoor.includes('folding') || rawDoor.includes('접는')) door = '폴딩 도어';
+                    if (rawDoor.includes('버튼')) door = '버튼자동문';
+
+                    // Normalize Handrail Types
+                    let rawHandrail = String(item.handrail_types || '').trim().toLowerCase();
+                    let handrail = rawHandrail; // default
+                    if (rawHandrail.includes('l')) handrail = 'L자형';
+                    else if (rawHandrail.includes('u')) handrail = 'U자형';
+                    else if (rawHandrail.includes('가동') || rawHandrail.includes('move') || rawHandrail.includes('folding')) handrail = '가동식';
+                    // Map back to original if normalization failed but value exists (safely)
+                    if (!handrail && item.handrail_types) handrail = String(item.handrail_types);
+
+                    // Normalize Has Sink
+                    let rawSink = String(item.has_sink || '').trim().toLowerCase();
+                    let hasSink = '없음';
+                    if (['yes', 'y', 'o', 'true', '있음', '있'].some(v => rawSink.includes(v))) hasSink = '있음';
+                    else if (['no', 'n', 'x', 'false', '없음', '없'].some(v => rawSink.includes(v))) hasSink = '없음';
+
+                    // Normalize Can Wash
+                    let rawWash = String(item.can_wash || '').trim().toLowerCase();
+                    let canWash = '불가능';
+                    if (['yes', 'possible', 'ok', 'true', '가능'].some(v => rawWash.includes(v))) canWash = '가능';
+                    else if (['no', 'impossible', 'false', '불가능'].some(v => rawWash.includes(v))) canWash = '불가능';
+
+                    // Normalize Sink Height
+                    let rawHeight = String(item.sink_height || '').trim();
+                    let sinkHeight = rawHeight;
+                    if (/^\d+$/.test(rawHeight)) {
+                        sinkHeight = `약 ${rawHeight}cm`;
+                    }
+
+                    const key = `${building}::${floor}::${gender}`;
+                    if (!groups[key]) {
+                        groups[key] = [];
+                    }
+
+                    // Use the normalized values
+                    groups[key].push({
+                        ...item,
+                        gender: gender,
+                        door_type: door,
+                        handrail_types: handrail,
+                        has_sink: hasSink,
+                        can_wash: canWash,
+                        sink_height: sinkHeight
+                    });
+                });
+
+                // Create RestroomInfo objects
+                const restrooms: RestroomInfo[] = Object.keys(groups).map((key, index) => {
+                    const group = groups[key];
+                    const first = group[0];
+
+                    // Collect all photos from this group
+                    let allPhotos: string[] = [];
+                    group.forEach(g => {
+                        if (g.photos && Array.isArray(g.photos)) {
+                            allPhotos = [...allPhotos, ...g.photos];
                         }
-
-                        // Robust Normalization for Door Type
-                        let rawDoor = String(item.door_type || '').trim().toLowerCase();
-                        let door = '자동문'; // default
-
-                        if (rawDoor.includes('자동') || rawDoor.includes('auto')) door = '자동문';
-                        if (rawDoor.includes('버튼') || rawDoor.includes('button')) door = '버튼자동문';
-                        if (rawDoor.includes('여닫') || rawDoor.includes('swing') || rawDoor.includes('pull') || rawDoor.includes('push')) door = '여닫이문';
-                        if (rawDoor.includes('미닫') || rawDoor.includes('sliding') || rawDoor.includes('slide')) door = '미닫이문';
-                        if (rawDoor.includes('폴딩') || rawDoor.includes('folding') || rawDoor.includes('접는')) door = '폴딩 도어';
-                        if (rawDoor.includes('버튼')) door = '버튼자동문';
-
-                        // Normalize Handrail Types
-                        let rawHandrail = String(item.handrail_types || '').trim().toLowerCase();
-                        let handrail = rawHandrail; // default
-                        if (rawHandrail.includes('l')) handrail = 'L자형';
-                        else if (rawHandrail.includes('u')) handrail = 'U자형';
-                        else if (rawHandrail.includes('가동') || rawHandrail.includes('move') || rawHandrail.includes('folding')) handrail = '가동식';
-                        // Map back to original if normalization failed but value exists (safely)
-                        if (!handrail && item.handrail_types) handrail = String(item.handrail_types);
-
-                        // Normalize Has Sink
-                        let rawSink = String(item.has_sink || '').trim().toLowerCase();
-                        let hasSink = '없음';
-                        if (['yes', 'y', 'o', 'true', '있음', '있'].some(v => rawSink.includes(v))) hasSink = '있음';
-                        else if (['no', 'n', 'x', 'false', '없음', '없'].some(v => rawSink.includes(v))) hasSink = '없음';
-
-                        // Normalize Can Wash
-                        let rawWash = String(item.can_wash || '').trim().toLowerCase();
-                        let canWash = '불가능';
-                        if (['yes', 'possible', 'ok', 'true', '가능'].some(v => rawWash.includes(v))) canWash = '가능';
-                        else if (['no', 'impossible', 'false', '불가능'].some(v => rawWash.includes(v))) canWash = '불가능';
-
-                        // Normalize Sink Height
-                        let rawHeight = String(item.sink_height || '').trim();
-                        let sinkHeight = rawHeight;
-                        if (/^\d+$/.test(rawHeight)) {
-                            sinkHeight = `약 ${rawHeight}cm`;
-                        }
-
-                        const key = `${building}::${floor}::${gender}`;
-                        if (!groups[key]) {
-                            groups[key] = [];
-                        }
-
-                        // Use the normalized values
-                        groups[key].push({
-                            ...item,
-                            gender: gender,
-                            door_type: door,
-                            handrail_types: handrail,
-                            has_sink: hasSink,
-                            can_wash: canWash,
-                            sink_height: sinkHeight
-                        });
                     });
 
-                    // Create RestroomInfo objects
-                    const restrooms: RestroomInfo[] = Object.keys(groups).map((key, index) => {
-                        const group = groups[key];
-                        const first = group[0];
+                    return {
+                        id: `restroom-${index}`,
+                        building: first.building || '',
+                        floor: first.floor || '',
+                        gender: first.gender || '남녀공용',
+                        doorType: first.door_type || '자동문',
+                        width: first.width || '',
+                        height: first.height || '',
+                        selectedPhotos: [null, null, null],
+                        surveyPhotos: allPhotos,
+                        handrailTypes: first.handrail_types || '',
+                        hasSink: first.has_sink || '',
+                        canWash: first.can_wash || '',
+                        sinkHeight: first.sink_height || ''
+                    };
+                });
 
-                        // Collect all photos from this group
-                        let allPhotos: string[] = [];
-                        group.forEach(g => {
-                            if (g.photos && Array.isArray(g.photos)) {
-                                allPhotos = [...allPhotos, ...g.photos];
-                            }
-                        });
-
-                        return {
-                            id: `restroom-${index}`,
-                            building: first.building || '',
-                            floor: first.floor || '',
-                            gender: first.gender || '남녀공용',
-                            doorType: first.door_type || '자동문',
-                            width: first.width || '',
-                            height: first.height || '',
-                            selectedPhotos: [null, null, null],
-                            surveyPhotos: allPhotos,
-                            handrailTypes: first.handrail_types || '',
-                            hasSink: first.has_sink || '',
-                            canWash: first.can_wash || '',
-                            sinkHeight: first.sink_height || ''
-                        };
-                    });
-
-                    setData(prev => ({ ...prev, restrooms }));
-                }
+                setData(prev => ({ ...prev, restrooms }));
             } catch (error) {
                 console.error("Failed to fetch survey data", error);
             }
         };
-        fetchSurveyData();
+        loadSurveyData();
     }, []);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: keyof GuideData) => {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
+import { createSocketClient } from '@/api/socket';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,9 +23,7 @@ const StudentDiscussionPage = () => {
     const [recognition, setRecognition] = useState<any>(null);
 
     useEffect(() => {
-        const newSocket = io('/', {
-            path: '/socket.io',
-        });
+        const newSocket = createSocketClient();
 
         newSocket.on('connect', () => {
             console.log('Connected to socket server');

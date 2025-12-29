@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 const frontendDistPath = path.join(__dirname, 'public');
 app.use(express.static(frontendDistPath));
 app.use(cors({
-    origin: 'https://student.momo-school.shop',
+    origin: ['https://student.momo-school.shop', 'http://localhost:3000', 'http://localhost:8080'],
     credentials: true
 }));
 app.use(express.json()); // Ensure JSON body parsing is enabled
