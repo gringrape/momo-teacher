@@ -289,46 +289,83 @@ const AccessibilityGuidePage = () => {
 
                                 <div className="space-y-4 col-span-1 md:col-span-2">
                                     <h3 className="text-xl font-semibold text-blue-800 border-b pb-2">학생들이 수집한 화장실 데이터</h3>
-                                    <div className="rounded-md border overflow-x-auto">
-                                        <Table className="min-w-[1200px]">
-                                            <TableHeader>
-                                                <TableRow className="bg-gray-100">
-                                                    <TableHead className="min-w-[100px]">팀명</TableHead>
-                                                    <TableHead className="min-w-[80px]">위치</TableHead>
-                                                    <TableHead className="min-w-[60px]">성별</TableHead>
-                                                    <TableHead className="min-w-[80px]">출입문</TableHead>
-                                                    <TableHead className="min-w-[100px]">크기</TableHead>
-                                                    <TableHead className="min-w-[80px]">사용가능</TableHead>
-                                                    <TableHead className="min-w-[100px]">손잡이</TableHead>
-                                                    <TableHead className="min-w-[100px]">세면대정보</TableHead>
-                                                    <TableHead className="min-w-[150px]">불편한점</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {surveyData.length === 0 ? (
-                                                    <TableRow>
-                                                        <TableCell colSpan={9} className="text-center h-24">
-                                                            수집된 데이터가 없습니다.
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ) : (
-                                                    surveyData.map((item) => (
-                                                        <TableRow key={item.id}>
-                                                            <TableCell className="font-medium">{item.team_name}</TableCell>
-                                                            <TableCell>{item.building} {item.floor}층</TableCell>
-                                                            <TableCell>{item.gender}</TableCell>
-                                                            <TableCell>{item.door_type}</TableCell>
-                                                            <TableCell>{item.width} x {item.height}</TableCell>
-                                                            <TableCell>{item.can_use_restroom}</TableCell>
-                                                            <TableCell>{item.handrail_types}</TableCell>
-                                                            <TableCell>{item.has_sink} / {item.sink_height}</TableCell>
-                                                            <TableCell>{item.why_not_use}</TableCell>
-                                                        </TableRow>
-                                                    ))
-                                                )}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
+                                    {surveyData.length === 0 ? (
+                                        <div className="text-center p-8 bg-gray-50 rounded-lg border-2 border-dashed">
+                                            <p className="text-lg text-gray-500">아직 수집된 데이터가 없습니다.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {surveyData.map((item) => (
+                                                <div key={item.id} className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition-all break-inside-avoid">
+                                                    <div className="flex justify-between items-start mb-3 border-b pb-3">
+                                                        <div>
+                                                            <h4 className="font-bold text-lg text-slate-800">{item.team_name}</h4>
+                                                            <p className="text-sm text-slate-500 font-medium">
+                                                                {item.building} {String(item.floor).replace(/층$/, '')}층
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-3 text-sm">
+                                                        <div className="space-y-2">
+                                                            <div className="bg-slate-50 p-2 rounded flex justify-between items-center">
+                                                                <span className="text-xs text-slate-400">성별</span>
+                                                                <span className="font-medium text-slate-700 text-right">{item.gender}</span>
+                                                            </div>
+                                                            <div className="bg-slate-50 p-2 rounded flex justify-between items-center">
+                                                                <span className="text-xs text-slate-400">출입문</span>
+                                                                <span className="font-medium text-slate-700 text-right">{item.door_type}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded">
+                                                            <span className="text-xs text-slate-400 shrink-0">면적(cm)</span>
+                                                            <span className="font-medium text-slate-700">{item.width} x {item.height}</span>
+                                                        </div>
+
+                                                        <div className="space-y-1 pt-1">
+                                                            <div className="flex justify-between border-b border-dashed pb-1">
+                                                                <span className="text-slate-500">손잡이</span>
+                                                                <span className="font-medium text-slate-700">
+                                                                    {(() => {
+                                                                        const h = String(item.handrail_types || '').toLowerCase();
+                                                                        const types = [];
+                                                                        if (h.includes('l')) types.push('L자형');
+                                                                        if (h.includes('u')) types.push('U자형');
+                                                                        if (h.includes('move') || h.includes('folding') || h.includes('가동')) types.push('가동식');
+                                                                        if (h.includes('fix') || h.includes('고정')) types.push('고정식');
+                                                                        if (h.includes('other') || h.includes('기타')) types.push('기타');
+
+                                                                        if (types.length > 0) return types.join(', ');
+                                                                        if (!item.handrail_types || h === 'none') return '없음';
+                                                                        return item.handrail_types === 'other' ? '기타' : item.handrail_types;
+                                                                    })()}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between border-b border-dashed pb-1">
+                                                                <span className="text-slate-500">세면대</span>
+                                                                <span className="font-medium text-slate-700">
+                                                                    {['yes', '있음', 'y'].some(v => String(item.has_sink).toLowerCase().includes(v)) ? '있음' : '없음'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between pt-1">
+                                                                <span className="text-slate-500">세면대 높이</span>
+                                                                <span className="font-medium text-slate-700">
+                                                                    {(() => {
+                                                                        const h = String(item.sink_height).toLowerCase();
+                                                                        if (h.includes('high')) return '높음';
+                                                                        if (h.includes('low')) return '낮음';
+                                                                        if (h.includes('appropriate') || h.includes('good') || h.includes('ok')) return '적당함';
+                                                                        return item.sink_height || '-';
+                                                                    })()}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {data.restrooms.map((restroom) => (
@@ -418,60 +455,88 @@ const AccessibilityGuidePage = () => {
                 <Card>
                     <CardHeader>
                         <CardTitle>학생들이 수집한 화장실 데이터</CardTitle>
+                        <p className="text-sm text-gray-500">학생들이 직접 탐사하고 기록한 데이터입니다.</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <div className="inline-block min-w-full align-middle">
-                                <div className="rounded-md border">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead className="min-w-[100px]">팀명</TableHead>
-                                                <TableHead className="min-w-[80px]">위치</TableHead>
-                                                <TableHead className="min-w-[60px]">성별</TableHead>
-                                                <TableHead className="min-w-[80px]">출입문</TableHead>
-                                                <TableHead className="min-w-[100px]">크기(가로x세로)</TableHead>
-                                                <TableHead className="min-w-[80px]">사용가능</TableHead>
-                                                <TableHead className="min-w-[120px]">팀원</TableHead>
-                                                <TableHead className="min-w-[100px]">손잡이</TableHead>
-                                                <TableHead className="min-w-[80px]">세면대</TableHead>
-                                                <TableHead className="min-w-[80px]">세면가능</TableHead>
-                                                <TableHead className="min-w-[80px]">세면대높이</TableHead>
-                                                <TableHead className="min-w-[150px]">불편한점</TableHead>
-                                                <TableHead className="min-w-[150px]">바라는학교</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {surveyData.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={13} className="text-center h-24">
-                                                        수집된 데이터가 없습니다.
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : (
-                                                surveyData.map((item) => (
-                                                    <TableRow key={item.id}>
-                                                        <TableCell>{item.team_name}</TableCell>
-                                                        <TableCell>{item.building} {item.floor}층</TableCell>
-                                                        <TableCell>{item.gender}</TableCell>
-                                                        <TableCell>{item.door_type}</TableCell>
-                                                        <TableCell>{item.width} x {item.height}</TableCell>
-                                                        <TableCell>{item.can_use_restroom}</TableCell>
-                                                        <TableCell>{item.team_members}</TableCell>
-                                                        <TableCell>{item.handrail_types}</TableCell>
-                                                        <TableCell>{item.has_sink}</TableCell>
-                                                        <TableCell>{item.can_wash}</TableCell>
-                                                        <TableCell>{item.sink_height}</TableCell>
-                                                        <TableCell>{item.why_not_use}</TableCell>
-                                                        <TableCell>{item.dream_school}</TableCell>
-                                                    </TableRow>
-                                                ))
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                        {surveyData.length === 0 ? (
+                            <div className="text-center p-8 bg-gray-50 rounded-lg border-2 border-dashed">
+                                <p className="text-lg text-gray-500">아직 수집된 데이터가 없습니다.</p>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {surveyData.map((item) => (
+                                    <div key={item.id} className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
+                                        <div className="flex justify-between items-start mb-3 border-b pb-3">
+                                            <div>
+                                                <h4 className="font-bold text-lg text-slate-800">{item.team_name}</h4>
+                                                <p className="text-sm text-slate-500 font-medium">
+                                                    {item.building} {String(item.floor).replace(/층$/, '')}층
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3 text-sm">
+                                            <div className="space-y-2">
+                                                <div className="bg-slate-50 p-2 rounded flex justify-between items-center">
+                                                    <span className="text-xs text-slate-400">성별</span>
+                                                    <span className="font-medium text-slate-700 text-right">{item.gender}</span>
+                                                </div>
+                                                <div className="bg-slate-50 p-2 rounded flex justify-between items-center">
+                                                    <span className="text-xs text-slate-400">출입문</span>
+                                                    <span className="font-medium text-slate-700 text-right">{item.door_type}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 bg-slate-50 p-2 rounded">
+                                                <span className="text-xs text-slate-400 shrink-0">면적(cm)</span>
+                                                <span className="font-medium text-slate-700">{item.width} x {item.height}</span>
+                                            </div>
+
+                                            <div className="space-y-1 pt-1">
+                                                <div className="flex justify-between border-b border-dashed pb-1">
+                                                    <span className="text-slate-500">손잡이</span>
+                                                    <span className="font-medium text-slate-700">
+                                                        {(() => {
+                                                            const h = String(item.handrail_types || '').toLowerCase();
+                                                            const types = [];
+                                                            if (h.includes('l')) types.push('L자형');
+                                                            if (h.includes('u')) types.push('U자형');
+                                                            if (h.includes('move') || h.includes('folding') || h.includes('가동')) types.push('가동식');
+                                                            if (h.includes('fix') || h.includes('고정')) types.push('고정식');
+                                                            if (h.includes('other') || h.includes('기타')) types.push('기타');
+
+                                                            if (types.length > 0) return types.join(', ');
+                                                            if (!item.handrail_types || h === 'none') return '없음';
+                                                            return item.handrail_types === 'other' ? '기타' : item.handrail_types;
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-dashed pb-1">
+                                                    <span className="text-slate-500">세면대</span>
+                                                    <span className="font-medium text-slate-700">
+                                                        {['yes', '있음', 'y'].some(v => String(item.has_sink).toLowerCase().includes(v)) ? '있음' : '없음'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between pt-1">
+                                                    <span className="text-slate-500">세면대 높이</span>
+                                                    <span className="font-medium text-slate-700">
+                                                        {(() => {
+                                                            const h = String(item.sink_height).toLowerCase();
+                                                            if (h.includes('high')) return '높음';
+                                                            if (h.includes('low')) return '낮음';
+                                                            if (h.includes('appropriate') || h.includes('good') || h.includes('ok')) return '적당함';
+                                                            return item.sink_height || '-';
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
