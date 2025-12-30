@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Printer, ArrowLeft, Save } from 'lucide-react';
+import { Printer, ArrowLeft, Save, Send } from 'lucide-react';
 import { RestroomCard } from '@/components/RestroomCard';
 
 interface GuideData {
@@ -236,6 +236,10 @@ const AccessibilityGuidePage = () => {
         window.print();
     };
 
+    const handleSubmit = () => {
+        alert("접근성 가이드가 성공적으로 제출되었습니다!");
+    };
+
     if (!isEditing) {
         return (
             <div className="min-h-screen bg-white p-8 print:p-0">
@@ -244,9 +248,14 @@ const AccessibilityGuidePage = () => {
                         <Button variant="outline" onClick={() => setIsEditing(true)}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> 수정하기
                         </Button>
-                        <Button onClick={handlePrint}>
-                            <Printer className="mr-2 h-4 w-4" /> 인쇄하기
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700">
+                                <Send className="mr-2 h-4 w-4" /> 제출하기
+                            </Button>
+                            <Button onClick={handlePrint} variant="secondary">
+                                <Printer className="mr-2 h-4 w-4" /> 인쇄하기
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="text-center space-y-4 border-b-2 border-black pb-8">
