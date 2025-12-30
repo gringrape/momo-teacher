@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
 
 interface RestroomInfo {
@@ -38,7 +39,7 @@ export const RestroomCard = ({ data, onChange, onPhotoAction }: RestroomCardProp
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label>위치 (층수)</Label>
-                        <Input value={data.floor} onChange={(e) => onChange(data.id, 'floor', e.target.value)} placeholder="1" />
+                        <Input type="number" value={data.floor} onChange={(e) => onChange(data.id, 'floor', e.target.value)} placeholder="1" />
                     </div>
                     <div className="space-y-2">
                         <Label>화장실 구분</Label>
@@ -63,18 +64,38 @@ export const RestroomCard = ({ data, onChange, onPhotoAction }: RestroomCardProp
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>너비 (가로)</Label>
-                        <Input value={data.width} onChange={(e) => onChange(data.id, 'width', e.target.value)} placeholder="예: 150cm" />
+                        <Label>가로(cm)</Label>
+                        <Input value={data.width} onChange={(e) => onChange(data.id, 'width', e.target.value)} placeholder="예: 150" />
                     </div>
                     <div className="space-y-2">
-                        <Label>높이 (세로)</Label>
-                        <Input value={data.height} onChange={(e) => onChange(data.id, 'height', e.target.value)} placeholder="예: 200cm" />
+                        <Label>세로(cm)</Label>
+                        <Input value={data.height} onChange={(e) => onChange(data.id, 'height', e.target.value)} placeholder="예: 200" />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <Label>안전 손잡이 종류</Label>
-                    <Input value={data.handrailTypes} onChange={(e) => onChange(data.id, 'handrailTypes', e.target.value)} placeholder="예: L자형, 가동식 등" />
+                    <Label>안전 손잡이 종류 (중복 선택 가능)</Label>
+                    <div className="grid grid-cols-2 gap-y-2">
+                        {['L자형', 'U자형', '가동식', '고정식', '기타'].map((type) => (
+                            <div key={type} className="flex items-center space-x-2">
+                                <Checkbox
+                                    id={`handrail-${data.id}-${type}`}
+                                    checked={data.handrailTypes.includes(type)}
+                                    onCheckedChange={(checked) => {
+                                        const currentTypes = data.handrailTypes ? data.handrailTypes.split(', ').filter(Boolean) : [];
+                                        let newTypes;
+                                        if (checked) {
+                                            newTypes = [...currentTypes, type];
+                                        } else {
+                                            newTypes = currentTypes.filter(t => t !== type);
+                                        }
+                                        onChange(data.id, 'handrailTypes', newTypes.join(', '));
+                                    }}
+                                />
+                                <Label htmlFor={`handrail-${data.id}-${type}`}>{type}</Label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -96,7 +117,11 @@ export const RestroomCard = ({ data, onChange, onPhotoAction }: RestroomCardProp
 
                 <div className="space-y-2">
                     <Label>세면대 높이</Label>
-                    <Input value={data.sinkHeight} onChange={(e) => onChange(data.id, 'sinkHeight', e.target.value)} placeholder="예: 70cm" />
+                    <RadioGroup value={data.sinkHeight} onValueChange={(v) => onChange(data.id, 'sinkHeight', v)} className="flex gap-4">
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="높음" id={`sh1-${data.id}`} /><Label htmlFor={`sh1-${data.id}`}>높음</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="적당함" id={`sh2-${data.id}`} /><Label htmlFor={`sh2-${data.id}`}>적당함</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="낮음" id={`sh3-${data.id}`} /><Label htmlFor={`sh3-${data.id}`}>낮음</Label></div>
+                    </RadioGroup>
                 </div>
 
                 <div className="space-y-2">
