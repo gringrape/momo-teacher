@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
             floor: data.floor || null,
             gender: data.gender || null,
             dream_school: data.dreamSchool || data.dream_school || null,
-            can_use_restroom: data.canUseRestroom || data.can_use_restroom || null,
+
             why_not_use: data.whyNotUse || data.why_not_use || null,
             door_type: data.doorType || data.door_type || null,
             width: data.width || null,
@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
             has_sink: data.hasSink || data.has_sink || null,
             can_wash: data.canWash || data.can_wash || null,
             sink_height: data.sinkHeight || data.sink_height || null,
+            has_accessible_restroom: data.hasAccessibleRestroom || data.has_accessible_restroom || null,
         };
 
         const { error } = await supabase.from("survey_responses").insert(dbData);
