@@ -515,9 +515,9 @@ const AccessibilityGuidePage = () => {
                     </CardContent>
                 </Card>
 
-                <div className="flex justify-end pb-12">
+                <div className="flex justify-center pb-12">
                     <Button onClick={() => setIsEditing(false)} size="lg" className="w-full md:w-auto text-lg h-14">
-                        <Save className="mr-2 h-5 w-5" /> 가이드 완성하기
+                        <Save className="mr-2 h-5 w-5" /> 작성완료
                     </Button>
                 </div>
             </div>
