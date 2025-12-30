@@ -433,9 +433,7 @@ const AccessibilityGuidePage = () => {
         <div className="container mx-auto p-8 max-w-3xl">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold">접근성 가이드 작성</h1>
-                <div className="text-red-500 font-bold bg-yellow-100 p-2 rounded print:hidden">
-                    DEBUG: Survey={surveyData.length}, Groups={data.restrooms.length}
-                </div>
+
 
             </div>
 
