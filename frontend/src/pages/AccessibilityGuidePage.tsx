@@ -390,9 +390,7 @@ const AccessibilityGuidePage = () => {
                 <div className="text-red-500 font-bold bg-yellow-100 p-2 rounded print:hidden">
                     DEBUG: Survey={surveyData.length}, Groups={data.restrooms.length}
                 </div>
-                <Button onClick={() => setIsEditing(false)} size="lg">
-                    <Save className="mr-2 h-4 w-4" /> 작성 완료
-                </Button>
+
             </div>
 
             <div className="space-y-8">
