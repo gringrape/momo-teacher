@@ -370,14 +370,23 @@ const AccessibilityGuidePage = () => {
 
                                 {data.restrooms.map((restroom) => (
                                     <div key={restroom.id} className="space-y-4">
-                                        <h3 className="text-xl font-semibold text-blue-800">장애인 화장실 ({restroom.building} - {restroom.gender})</h3>
+                                        <h3 className="text-xl font-semibold text-blue-800">장애인 화장실 ({restroom.building ? `${restroom.building} - ` : ''}{restroom.gender})</h3>
                                         <ul className="list-disc list-inside space-y-2 text-lg">
-                                            <li>위치: <strong>{restroom.building}</strong> {restroom.floor}층</li>
+                                            <li>위치: <strong>{restroom.building}</strong> {restroom.floor ? `${String(restroom.floor).replace(/층$/, '')}층` : ''}</li>
                                             <li>구분: <strong>{restroom.gender}</strong> 화장실</li>
                                             <li>출입문 형태: <strong>{restroom.doorType}</strong></li>
-                                            <li>내부 크기: 가로 <strong>{restroom.width}</strong> x 세로 <strong>{restroom.height}</strong></li>
-                                            <li>손잡이: <strong>{restroom.handrailTypes || '정보 없음'}</strong></li>
-                                            <li>세면대: <strong>{restroom.hasSink || '-'}</strong> (높이: {restroom.sinkHeight || '-'}) / 세면가능여부: <strong>{restroom.canWash || '-'}</strong></li>
+                                            <li>내부 크기: 가로 <strong>{restroom.width || '-'}</strong> x 세로 <strong>{restroom.height || '-'}</strong></li>
+                                            <li>손잡이: <strong>{(() => {
+                                                if (!restroom.handrailTypes) return '정보 없음';
+                                                return restroom.handrailTypes.replace(/other/gi, '기타');
+                                            })()}</strong></li>
+                                            <li>세면대: <strong>{restroom.hasSink || '-'}</strong> (높이: {(() => {
+                                                const h = String(restroom.sinkHeight || '').toLowerCase();
+                                                if (h.includes('high') || h === '높음') return '높음';
+                                                if (h.includes('low') || h === '낮음') return '낮음';
+                                                if (h.includes('appropriate') || h.includes('good') || h === '적당함') return '적당함';
+                                                return restroom.sinkHeight || '-';
+                                            })()}) / 세면가능여부: <strong>{restroom.canWash || '-'}</strong></li>
                                         </ul>
                                         <div className="flex gap-4 mt-4 overflow-x-auto">
                                             {restroom.selectedPhotos.map((photo, idx) => (
