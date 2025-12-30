@@ -33,7 +33,7 @@ export const RestroomCard = ({ data, onChange, onPhotoAction }: RestroomCardProp
     return (
         <Card className="mb-8">
             <CardHeader>
-                <CardTitle>{data.building} {data.floor.includes('층') ? data.floor : `${data.floor}층`} 화장실</CardTitle>
+                <CardTitle>{data.building} {data.floor}층 화장실</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
