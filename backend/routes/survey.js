@@ -19,9 +19,6 @@ router.post('/', async (req, res) => {
             building: data.building || null,
             floor: data.floor || null,
             gender: data.gender || null,
-
-
-            why_not_use: data.whyNotUse || data.why_not_use || null,
             door_type: data.doorType || data.door_type || null,
             width: data.width || null,
             height: data.height || null,
