@@ -7,7 +7,13 @@ const surveyRoutes = require('./routes/survey');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: true, // Allow all origins (reflects the request origin)
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 

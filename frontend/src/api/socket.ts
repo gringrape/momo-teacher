@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 export const createSocketClient = (): Socket => {
     if (!socket) {
-        const url = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const url = import.meta.env.VITE_API_URL;
         socket = io(url, {
             path: '/socket.io',
             // Add any other default config here if needed

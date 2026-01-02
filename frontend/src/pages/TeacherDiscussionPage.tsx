@@ -57,7 +57,7 @@ const TeacherDiscussionPage = () => {
             let changed = false;
 
             responses.forEach((r, index) => {
-                const key = `${r.nickname} -${r.timestamp} `;
+                const key = `${r.nickname}-${r.timestamp}`;
                 if (!next[key]) {
                     // Grid Layout Logic
                     // 3 columns: 0, 1, 2
@@ -211,7 +211,7 @@ const TeacherDiscussionPage = () => {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-primary">토론 관리</h1>
                 <div className="flex items-center gap-2">
-                    <div className={`w - 3 h - 3 rounded - full ${isConnected ? 'bg-green-500' : 'bg-red-500'} `} />
+                    <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
                     <span className="text-sm text-muted-foreground">{isConnected ? '연결됨' : '연결 끊김'}</span>
                     <span className="text-sm text-muted-foreground ml-2">접속 학생: {students.length}명</span>
                 </div>
@@ -237,10 +237,10 @@ const TeacherDiscussionPage = () => {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center gap-6 py-8">
                             <div className="bg-white p-4 rounded-lg shadow-sm border">
-                                <QRCode value={`${window.location.origin} /student/discussion`} size={250} />
+                                <QRCode value={`${window.location.origin}/student/discussion`} size={250} />
                             </div>
                             <p className="text-lg font-medium text-center">
-                                {`${window.location.origin} /student/discussion`}
+                                {`${window.location.origin}/student/discussion`}
                             </p>
                         </CardContent>
                     </Card>
@@ -348,7 +348,7 @@ const TeacherDiscussionPage = () => {
                         )}
 
                         {responses.map((response, index) => {
-                            const key = `${response.nickname} -${response.timestamp} `;
+                            const key = `${response.nickname}-${response.timestamp}`;
                             // Use pre-calculated layout or fallback
                             const layout = layoutMap[key] || {
                                 x: 50,
@@ -360,10 +360,10 @@ const TeacherDiscussionPage = () => {
                             return (
                                 <div
                                     key={index}
-                                    className={`absolute w - 72 animate -in fade -in zoom -in duration - 500 cursor - move ${draggingId === key ? 'z-[999] scale-105' : ''} `}
+                                    className={`absolute w-72 animate-in fade-in zoom-in duration-500 cursor-move ${draggingId === key ? 'z-[999] scale-105' : ''}`}
                                     style={{
-                                        left: `${layout.x}% `,
-                                        top: `${layout.y}% `,
+                                        left: `${layout.x}%`,
+                                        top: `${layout.y}%`,
                                         zIndex: draggingId === key ? 999 : index + 10,
                                         transform: `rotate(${layout.rotate}deg)`,
                                         touchAction: 'none'
@@ -373,7 +373,7 @@ const TeacherDiscussionPage = () => {
                                     onPointerUp={handlePointerUp}
                                     onPointerCancel={handlePointerUp}
                                 >
-                                    <div className={`relative ${layout.color} p - 6 pt - 8 rounded - sm shadow - md hover: shadow - 2xl hover: scale - 105 hover: z - [100] transition - all duration - 300 min - h - [160px] flex flex - col justify - between select - none`}>
+                                    <div className={`relative ${layout.color} p-6 pt-8 rounded-sm shadow-md hover:shadow-2xl hover:scale-105 hover:z-[100] transition-all duration-300 min-h-[160px] flex flex-col justify-between select-none`}>
                                         {/* Tape effect */}
                                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 bg-white/40 backdrop-blur-[1px] shadow-sm rotate-[2deg]"></div>
 
