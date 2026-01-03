@@ -22,32 +22,48 @@ const TeacherQuizPage = () => {
         // Connect to the backend server (same origin)
         const newSocket = createSocketClient();
 
-        newSocket.on('connect', () => {
+        const onConnect = () => {
             console.log('Connected to socket server');
             setIsConnected(true);
-        });
+        };
 
-        newSocket.on('disconnect', () => {
+        const onDisconnect = () => {
             console.log('Disconnected from socket server');
             setIsConnected(false);
-        });
+        };
 
-        newSocket.on('studentListUpdate', (studentList: Student[]) => {
+        const onStudentListUpdate = (studentList: Student[]) => {
             setStudents(studentList);
-        });
+        };
 
-        newSocket.on('gameStarted', () => {
+        const onGameStarted = () => {
             setGameStatus('playing');
-        });
+        };
 
-        newSocket.on('progressUpdate', (newProgress: Record<string, number>) => {
+        const onProgressUpdate = (newProgress: Record<string, number>) => {
             setProgress(newProgress);
-        });
+        };
+
+        newSocket.on('connect', onConnect);
+        newSocket.on('disconnect', onDisconnect);
+        newSocket.on('studentListUpdate', onStudentListUpdate);
+        newSocket.on('gameStarted', onGameStarted);
+        newSocket.on('progressUpdate', onProgressUpdate);
 
         setSocket(newSocket);
 
+        // Check initial connection state
+        if (newSocket.connected) {
+            onConnect();
+            newSocket.emit('requestState');
+        }
+
         return () => {
-            newSocket.disconnect();
+            newSocket.off('connect', onConnect);
+            newSocket.off('disconnect', onDisconnect);
+            newSocket.off('studentListUpdate', onStudentListUpdate);
+            newSocket.off('gameStarted', onGameStarted);
+            newSocket.off('progressUpdate', onProgressUpdate);
         };
     }, []);
 

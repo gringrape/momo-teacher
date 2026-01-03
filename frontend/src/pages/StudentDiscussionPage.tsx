@@ -25,21 +25,30 @@ const StudentDiscussionPage = () => {
     useEffect(() => {
         const newSocket = createSocketClient();
 
-        newSocket.on('connect', () => {
+        const onConnect = () => {
             console.log('Connected to socket server');
-        });
+        };
 
-        newSocket.on('discussionState', (state: any) => {
+        const onDiscussionStateWrapper = (state: any) => {
             setDiscussionStatus(state.status);
             setCurrentQuestion(state.currentQuestion);
-            // Reset my response when question changes
             setMyResponse(null);
-        });
+        };
+
+        newSocket.on('connect', onConnect);
+        newSocket.on('discussionState', onDiscussionStateWrapper);
 
         setSocket(newSocket);
 
+        // Check initial connection state
+        if (newSocket.connected) {
+            onConnect();
+            newSocket.emit('requestState');
+        }
+
         return () => {
-            newSocket.disconnect();
+            newSocket.off('connect', onConnect);
+            newSocket.off('discussionState', onDiscussionStateWrapper);
         };
     }, []);
 

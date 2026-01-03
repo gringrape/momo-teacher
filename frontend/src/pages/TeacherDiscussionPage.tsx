@@ -82,21 +82,21 @@ const TeacherDiscussionPage = () => {
 
     useEffect(() => {
         const newSocket = createSocketClient();
-        // ... (socket effect)
-        newSocket.on('connect', () => {
+
+        const onConnect = () => {
             console.log('Connected to socket server');
             setIsConnected(true);
-        });
+        };
 
-        newSocket.on('disconnect', () => {
+        const onDisconnect = () => {
             setIsConnected(false);
-        });
+        };
 
-        newSocket.on('studentListUpdate', (studentList: Student[]) => {
+        const onStudentListUpdate = (studentList: Student[]) => {
             setStudents(studentList);
-        });
+        };
 
-        newSocket.on('discussionState', (state: any) => {
+        const onDiscussionState = (state: any) => {
             setDiscussionStatus(state.status);
             setCurrentQuestionIndex(state.currentQuestionIndex);
             setCurrentQuestion(state.currentQuestion);
@@ -107,12 +107,26 @@ const TeacherDiscussionPage = () => {
             if (state.allResponses) {
                 setAllResponses(state.allResponses);
             }
-        });
+        };
+
+        newSocket.on('connect', onConnect);
+        newSocket.on('disconnect', onDisconnect);
+        newSocket.on('studentListUpdate', onStudentListUpdate);
+        newSocket.on('discussionState', onDiscussionState);
 
         setSocket(newSocket);
 
+        // Check initial connection state
+        if (newSocket.connected) {
+            onConnect();
+            newSocket.emit('requestState');
+        }
+
         return () => {
-            newSocket.disconnect();
+            newSocket.off('connect', onConnect);
+            newSocket.off('disconnect', onDisconnect);
+            newSocket.off('studentListUpdate', onStudentListUpdate);
+            newSocket.off('discussionState', onDiscussionState);
         };
     }, []);
 

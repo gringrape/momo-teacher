@@ -138,6 +138,37 @@ io.on('connection', (socket) => {
         });
     }
 
+    socket.on('requestState', () => {
+        // Send student list
+        socket.emit('studentListUpdate', Object.entries(students).map(([id, nickname]) => ({ id, nickname })));
+
+        // Send Game Status
+        if (gameStatus === 'playing') {
+            socket.emit('gameStarted');
+            if ((studentScores[socket.id] || 0) < QUIZ_DATA.length) {
+                const q = QUIZ_DATA[studentScores[socket.id] || 0];
+                socket.emit('question', {
+                    question: q.question,
+                    options: q.options
+                });
+            } else {
+                socket.emit('finished');
+            }
+        }
+
+        // Send Discussion Status
+        if (discussionStatus === 'discussing') {
+            socket.emit('discussionState', {
+                status: discussionStatus,
+                currentQuestionIndex: currentDiscussionIndex,
+                currentQuestion: DISCUSSION_QUESTIONS[currentDiscussionIndex],
+                responses: discussionResponses.filter(r => r.questionIndex === currentDiscussionIndex),
+                allResponses: discussionResponses,
+                allQuestions: DISCUSSION_QUESTIONS
+            });
+        }
+    });
+
     socket.on('join', (nickname) => {
         students[socket.id] = nickname;
         studentScores[socket.id] = 0; // Initialize score
